@@ -289,13 +289,19 @@ const fchips = (act, cur, items) => `<div class="chips" role="group">${items.map
 
 /* ---------- state + storage ---------- */
 const KEYS = ['words','todos','logs','mocks','essays','settings'];
-const DEFAULT_SETTINGS = {exam:'2027-01-24', exam2a:'2027-02-28', exam2b:'2027-03-07', exam2pick:'', daily:30, kyoDone:0, kyoTotal:20};
+const DEFAULT_SETTINGS = {exam:'2027-01-24', exam2a:'2027-02-28', exam2b:'2027-03-07', exam2pick:'', daily:40, dailyMin:120, kyoDone:0, kyoTotal:20, pv:2};
 let S = {words:[], todos:[], logs:[], mocks:[], essays:[], settings:{...DEFAULT_SETTINGS}};
 let db = null, me = null, syncMode = 'local';
 const LS = 'eikenp1:';
 function lsGet(k){ try{ const v = localStorage.getItem(LS+k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
 function lsSet(k, v){ try{ localStorage.setItem(LS+k, JSON.stringify(v)); }catch(e){} }
-function fixSettings(s){ s = {...DEFAULT_SETTINGS, ...(s||{})}; ['exam','exam2a','exam2b'].forEach(k => { if (!s[k]) s[k] = DEFAULT_SETTINGS[k]; }); return s; }
+function fixSettings(s){
+  const old = !s?.pv;   // 1日2時間プランより前の設定: 新出語数を40語以上、最低学習時間を120分にする
+  s = {...DEFAULT_SETTINGS, ...(s||{})};
+  ['exam','exam2a','exam2b'].forEach(k => { if (!s[k]) s[k] = DEFAULT_SETTINGS[k]; });
+  if (old) { s.daily = Math.max(+s.daily || 0, 40); s.dailyMin = 120; s.pv = 2; }
+  return s;
+}
 const dirty = new Set(); let flushT;
 function save(k){ lsSet(k, S[k]); dirty.add(k); clearTimeout(flushT); flushT = setTimeout(flush, 700); }
 const CHUNK = 250;
@@ -381,6 +387,7 @@ function streak(){
   while (minutesOn(d) > 0) { n++; d = addDays(d,-1); }
   return n;
 }
+function goalDays(){ const t = today(); let n = 0; for (let i=0;i<7;i++) if (minutesOn(addDays(t,-i)) >= S.settings.dailyMin) n++; return n; }
 function weekMinutes(){ const t = today(); let s=0; for (let i=0;i<7;i++) s += minutesOn(addDays(t,-i)); return s; }
 const dueWords = () => S.words.filter(w => w.box < MASTER && w.due <= today());
 const weakWords = () => S.words.filter(w => w.ng > 0 && w.ng >= w.ok || (w.box <= 1 && (w.ok+w.ng) > 0));
@@ -457,6 +464,7 @@ VIEW.home = () => {
           <div class="field"><label for="exam2a">二次 A日程</label><input type="date" id="exam2a" name="exam2a" value="${esc(s.exam2a)}"></div>
           <div class="field"><label for="exam2b">二次 B日程</label><input type="date" id="exam2b" name="exam2b" value="${esc(s.exam2b)}"></div>
           <div class="field"><label for="exam2pick">二次の受験日程</label><select id="exam2pick" name="exam2pick"><option value="" ${!s.exam2pick?'selected':''}>未定</option><option value="a" ${s.exam2pick==='a'?'selected':''}>A日程</option><option value="b" ${s.exam2pick==='b'?'selected':''}>B日程</option></select></div>
+          <div class="field"><label for="dailyMin">1日の最低学習時間(分)</label><input type="number" id="dailyMin" name="dailyMin" min="30" max="600" step="10" value="${s.dailyMin}" inputmode="numeric"></div>
           <div class="field"><label for="daily">パス単 1日の新出語数</label><input type="number" id="daily" name="daily" min="5" max="200" value="${s.daily}" inputmode="numeric"></div>
         </div>
         <button class="btn pri block">保存</button>
@@ -465,6 +473,11 @@ VIEW.home = () => {
     </details>
   </section>
 
+  <section class="panel" style="gap:8px">
+    <div class="panel-h"><h2>今日の目標</h2><span class="num"><b style="font-size:1.3rem;color:${minutesOn(t) >= s.dailyMin ? 'var(--ok)' : 'var(--accent)'}">${minutesOn(t)}</b> / ${s.dailyMin}分</span></div>
+    <div class="bar" style="height:12px;--c:${minutesOn(t) >= s.dailyMin ? 'var(--ok)' : 'var(--accent)'}"><i style="width:${Math.min(100, minutesOn(t)/s.dailyMin*100)}%"></i></div>
+    <p class="small muted">${minutesOn(t) >= s.dailyMin ? '今日の目標を達成しました。' : `あと ${hm(s.dailyMin - minutesOn(t))}。`}直近7日の達成 <b class="num">${goalDays()}</b> / 7日</p>
+  </section>
   <div class="stats">
     <div class="stat"><b>${hm(minutesOn(t))}</b><span>今日の学習</span></div>
     <div class="stat"><b>${(weekMinutes()/60).toFixed(1)}<small style="font-size:.8rem">h</small></b><span>直近7日</span></div>
@@ -720,43 +733,56 @@ VIEW.todo = () => {
     <div class="panel-h"><h2>今週のプランを自動で作る</h2><span class="phase">${ph.n}</span></div>
     <p class="small">${esc(ph.tip)}</p>
     <p class="small muted">${planPreview(ph.k)}</p>
-    <button class="btn pri block" data-act="plan" ${ph.k==='done'?'disabled':''}>今日から7日分を追加</button>
+    <button class="btn pri block" data-act="plan" ${ph.k==='done'?'disabled':''}>今日から7日分を作る</button>
   </section>`;
 };
+// 1日120分を基準にした時期別メニュー。語彙 約35%・ライティング 約25%・読解/リスニング 約30%・話す型 約10%。
+// 設定の「1日の最低学習時間」に合わせて、各TODOの時間を比例で伸び縮みさせる。
+function dayMenu(k, day, i){
+  const dw = S.settings.daily, m = [];
+  const add = (title, skill, book, min) => m.push({title, skill, book, min});
+  const write = () => i % 2
+    ? add('要約 1本（60〜70語・20分で書く）→ 模範解答と比べて書き直す', 'sum', k === 'base' ? 'kyo' : 'kako', 30)
+    : add('意見論述 1本（120〜150語・25分で書く）→ 見直しチェック', 'ess', k === 'base' ? 'kyo' : 'kako', 30);
+  const pattern = () => add('話す型の練習: 型を1つ選び（While X, Y / 関係詞 / If I were…）3文作って声に出す', 'spk', 'other', 10);
+  const pass = (min) => add(`パス単 新出${dw}語 → わからない語を単語帳へ`, 'voc', 'pass', min);
+  const quiz = (min) => add('単語帳の復習待ちをクイズ', 'voc', 'app', min);
+  if (k === 'base') {
+    pass(35); quiz(10); write(); pattern();
+    if ([1,3,5].includes(day)) add('総合対策教本 1章（例題を解いて解説を読む）', 'read', 'kyo', 35);
+    else if ([2,4].includes(day)) add('教本のリスニング → 聞き取れなかった文をスクリプトで確認・音読', 'lis', 'kyo', 35);
+    else if (day === 6) add('教本の長文問題を1題 → 精読して言い換え表現をメモ', 'read', 'kyo', 35);
+    else add('1週間の総復習: 間違えた問題と単語をやり直す', 'read', 'kyo', 35);
+  } else if (k === 'drill') {
+    if (day === 6) { add('過去問 1回分 筆記（読解＋ライティング）を90分で通しで解く', 'read', 'kako', 90); pass(20); quiz(10); }
+    else if (day === 0) { add('過去問 同じ回のリスニング → 採点 → スコアを「過去問」に記録', 'lis', 'kako', 45); add('過去問の解き直し: 知らなかった語彙・熟語を単語帳に登録', 'read', 'kako', 30); pass(35); quiz(10); }
+    else if (day === 1) { add('過去問の要約・意見論述を書き直す（模範解答と比較）', 'sum', 'kako', 40); pass(35); quiz(10); pattern(); add('過去問リスニング スクリプトの音読', 'lis', 'kako', 25); }
+    else if ([2,4].includes(day)) { pass(35); quiz(10); write(); pattern(); add('リスニング シャドーイング（過去問 Part1〜2）', 'lis', 'kako', 35); }
+    else { pass(35); quiz(10); write(); pattern(); add('過去問の大問2・3を解き直して精読', 'read', 'kako', 35); }
+  } else if (k === 'final') {
+    if ([3,6].includes(day)) add('過去問 2周目 1回分を本番と同じ時間配分で（筆記90分＋リスニング30分）', 'read', 'kako', 120);
+    else {
+      add('苦手語・復習待ちを総ざらい（クイズ）', 'voc', 'app', 30); write();
+      add('間違えた過去問のやり直し', 'read', 'kako', 25); add('リスニング スクリプトの音読', 'lis', 'kako', 20);
+      add([2,5].includes(day) ? '面接: 4コマナレーション 1分準備＋2分で話す' : '話す型の練習: 3文作って声に出す', 'spk', 'kyo', 15);
+    }
+  } else if (k === 'spk') {
+    add('4コマナレーション 2枚: 準備1分 → 2分で話す → 録音を聞き直す', 'spk', 'kyo', 30);
+    add(i%2 ? '面接の質疑: 社会的な話題に「意見＋理由2つ」で答える（5問）' : '面接の質疑: 絵に関する質問・自分の意見を問う質問（5問）', 'spk', i%2 ? 'kyo' : 'kako', 30);
+    add('話す型の練習: 意見を言う型（I believe… because… / While X, Y）を音読→自分の文で', 'spk', 'other', 20);
+    add([0,3].includes(day) ? '教本の面接の章を読む・模範解答を音読' : '過去問の面接カードで模範解答を音読・暗唱', 'spk', 'kyo', 25);
+    quiz(15);
+  }
+  return m;
+}
 function planFor(k){
-  const t = today(), dw = S.settings.daily, out = [];
-  const add = (i, title, skill, book, min) => out.push({title, skill, book, min, date:addDays(t,i)});
-  const e1 = S.settings.exam, e2 = exam2Last();
+  const t = today(), out = [], e1 = S.settings.exam, e2 = exam2Last();
+  const f = Math.max(30, +S.settings.dailyMin || 120) / 120;
   for (let i=0;i<7;i++){
     const date = addDays(t,i), day = new Date(date+'T00:00:00').getDay();
     if (k !== 'spk' && e1 && date >= e1) break;   // 試験当日以降は入れない
     if (k === 'spk' && e2 && date >= e2) break;
-    if (k === 'spk') {
-      add(i, '4コマナレーション 1枚: 準備1分 → 2分で話す → 録音を聞き直す', 'spk', 'kyo', 20);
-      add(i, i%2 ? '面接の質疑: 社会的な話題に「意見＋理由2つ」で答える（3問）' : '面接の質疑: 絵に関する質問・自分の意見を問う質問（3問）', 'spk', i%2 ? 'kyo' : 'kako', 15);
-      if (day === 0 || day === 3) add(i, '教本の面接の章を読む・模範解答を音読', 'spk', 'kyo', 30);
-      add(i, '単語帳の復習待ちをクイズ（語彙を落とさない）', 'voc', 'app', 10);
-      continue;
-    }
-    if (k === 'final') add(i, 'パス単＋単語帳: 苦手・復習待ちを総ざらい（クイズ）', 'voc', 'app', 20);
-    else add(i, `パス単 新出${dw}語 → わからない語を単語帳へ → 復習クイズ`, 'voc', 'pass', 30);
-    if (k === 'base') {
-      if ([1,3,5].includes(day)) add(i, '総合対策教本 1章（例題を解いて解説を読む）', 'read', 'kyo', 40);
-      if ([2,4].includes(day)) add(i, '要約 1本（教本の例題 / 60〜70語）', 'sum', 'kyo', 25);
-      if (day === 6) add(i, '意見論述 1本（120〜150語・POINTSから2つ）', 'ess', 'kyo', 30);
-      if (day === 0) add(i, '教本のリスニング → 聞き取れなかった文をスクリプトで確認・音読', 'lis', 'kyo', 30);
-    } else if (k === 'drill') {
-      if (day === 6) add(i, '過去問 1回分 筆記（リーディング＋ライティング）を90分で通しで解く', 'read', 'kako', 90);
-      if (day === 0) add(i, '過去問 同じ回のリスニング → 採点 → スコアを「過去問」に記録', 'lis', 'kako', 60);
-      if (day === 1) add(i, '過去問の復習: 知らなかった語彙・熟語を単語帳に登録', 'voc', 'kako', 30);
-      if (day === 2) add(i, '過去問の要約を書き直す（模範解答と比較）', 'sum', 'kako', 25);
-      if ([3,5].includes(day)) add(i, 'リスニング スクリプトの音読・シャドーイング（Part1〜2）', 'lis', 'kako', 20);
-      if (day === 4) add(i, '意見論述 1本（過去問のトピック）', 'ess', 'kako', 30);
-    } else if (k === 'final') {
-      if ([6,3].includes(day)) add(i, '過去問 2周目 1回分を本番と同じ時間配分で', 'read', 'kako', 120);
-      add(i, i%2 ? '要約 1本（20分で書く）' : '意見論述 1本（25分で書く）', i%2 ? 'sum' : 'ess', 'kako', 25);
-      if ([2,5].includes(day)) add(i, '面接: 4コマナレーション 1分準備＋2分で話す練習', 'spk', 'kyo', 20);
-    }
+    dayMenu(k, day, i).forEach(x => out.push({...x, min: Math.max(5, Math.round(x.min * f / 5) * 5), date, auto:true}));
   }
   return out;
 }
@@ -764,13 +790,17 @@ function planPreview(k){
   if (k === 'done') return '試験日を新しく設定してください。';
   const p = planFor(k), m = p.reduce((a,x)=>a+x.min,0), days = new Set(p.map(x=>x.date)).size || 1;
   if (!p.length) return '試験の前日まで入れるTODOはありません。';
-  return `${days}日間で ${p.length}件、合計 約${hm(m)}（1日平均 約${Math.round(m/days)}分）。同じ日に同じTODOがあれば追加しません。`;
+  return `${days}日間で ${p.length}件、合計 約${hm(m)}（1日 約${hm(Math.round(m/days))}）。すでに入っている自動プランの未完了分は、新しいプランに入れ替えます。`;
 }
 function addPlan(){
   const ph = phase(); if (ph.k === 'done') { toast('先に試験日を設定してください'); return; }
+  const p = planFor(ph.k), dates = new Set(p.map(x => x.date));
+  const before = S.todos.length;
+  S.todos = S.todos.filter(x => !(x.auto && !x.done && dates.has(x.date)));   // 同じ日の古い自動プランは入れ替え
+  const removed = before - S.todos.length;
   let n = 0;
-  planFor(ph.k).forEach(p => { if (!S.todos.some(x => x.date === p.date && x.title === p.title)) { S.todos.push({id:uid(), ...p, done:false}); n++; } });
-  save('todos'); render(); toast(n ? `${n}件のTODOを追加しました` : '追加するTODOはありませんでした');
+  p.forEach(x => { if (!S.todos.some(y => y.date === x.date && y.title === x.title)) { S.todos.push({id:uid(), ...x, done:false}); n++; } });
+  save('todos'); render(); toast(removed ? `${n}件のTODOに入れ替えました` : `${n}件のTODOを追加しました`);
 }
 
 /* ---------- LOG ---------- */
@@ -1199,7 +1229,7 @@ document.addEventListener('submit', e => {
   const f = e.target, k = f.dataset.form; if (!k) return;
   e.preventDefault();
   const v = Object.fromEntries(new FormData(f).entries());
-  if (k === 'settings') { Object.assign(S.settings, {exam:v.exam, exam2a:v.exam2a, exam2b:v.exam2b, exam2pick:v.exam2pick, daily:Math.max(5, +v.daily || 30)}); S.settings = fixSettings(S.settings); save('settings'); render(); toast('保存しました'); }
+  if (k === 'settings') { Object.assign(S.settings, {exam:v.exam, exam2a:v.exam2a, exam2b:v.exam2b, exam2pick:v.exam2pick, daily:Math.max(5, +v.daily || 40), dailyMin:Math.max(30, +v.dailyMin || 120)}); S.settings = fixSettings(S.settings); save('settings'); render(); toast('保存しました'); }
   if (k === 'word') {
     const en = v.en.trim(), ja = v.ja.trim(); if (!en || !ja) return;
     lastSec = v.sec; lastSrc = v.src;
