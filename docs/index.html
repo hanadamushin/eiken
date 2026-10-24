@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#C42F3B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="合格デスク">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>準1級 合格デスク</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: phone-first single column (max 600px), compact sticky header with countdown, fixed bottom tab bar; quiz card uses the "red sheet" study motif */
+:root{
+  --paper:#EDF0F3; --card:#FFFFFF; --ink:#18212C; --muted:#5A6878; --line:#D3DAE2; --soft:#E3E8EE;
+  --accent:#C42F3B; --accent-soft:#F7DCDF; --on-accent:#FFFFFF; --blue:#1F4FB8;
+  --ok:#1D7F50; --ok-soft:#D8F0E3; --warn:#9A6514; --warn-soft:#F6EBD2; --bad:#B42335; --bad-soft:#F8DDE1;
+  --s-voc:#2F6FDB; --s-read:#0F8C80; --s-lis:#7E52CC; --s-sum:#C9741F; --s-ess:#BE3C77; --s-spk:#55852A;
+  --f-ui:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-en:"Newsreader","Georgia","Times New Roman",serif;
+  --f-num:"IBM Plex Mono",ui-monospace,"Consolas",monospace;
+  --r:14px; --nav:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11161C; --card:#19202A; --ink:#E5EAF0; --muted:#95A2B1; --line:#2B3541; --soft:#222B36;
+  --accent:#EE5D68; --accent-soft:#3D1D22; --on-accent:#1A0E10; --blue:#86A9F5;
+  --ok:#4CC38A; --ok-soft:#173327; --warn:#E2AE4A; --warn-soft:#3A2E15; --bad:#F07080; --bad-soft:#3C1C22;
+  --s-voc:#6E9BF0; --s-read:#3FC1B2; --s-lis:#A887EA; --s-sum:#E7A25C; --s-ess:#E570A6; --s-spk:#8CC35A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11161C; --card:#19202A; --ink:#E5EAF0; --muted:#95A2B1; --line:#2B3541; --soft:#222B36;
+  --accent:#EE5D68; --accent-soft:#3D1D22; --on-accent:#1A0E10; --blue:#86A9F5;
+  --ok:#4CC38A; --ok-soft:#173327; --warn:#E2AE4A; --warn-soft:#3A2E15; --bad:#F07080; --bad-soft:#3C1C22;
+  --s-voc:#6E9BF0; --s-read:#3FC1B2; --s-lis:#A887EA; --s-sum:#E7A25C; --s-ess:#E570A6; --s-spk:#8CC35A;
+  color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+.wrap{max-width:600px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.3}
+h2{font-size:1.08rem;font-weight:700}
+h3{font-size:.95rem;font-weight:700}
+p{margin:0}
+a{color:var(--blue)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.en{font-family:var(--f-en)}
+.muted{color:var(--muted)}
+.small{font-size:.82rem}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px;padding-block:6px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.mark{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--accent);color:var(--on-accent);font-weight:900;font-size:.85rem;flex:none}
+.brand h1{font-size:1rem;font-weight:900;letter-spacing:.04em;white-space:nowrap}
+.count{display:flex;align-items:baseline;gap:4px;white-space:nowrap;font-size:.75rem;color:var(--muted)}
+.count b{font-family:var(--f-num);font-size:1.35rem;color:var(--accent)}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+.nav-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+.nb{border:0;background:none;height:var(--nav);display:grid;place-items:center;align-content:center;gap:2px;color:var(--muted);font-size:.68rem;font-weight:500;cursor:pointer;position:relative}
+.nb svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nb[aria-current="page"]{color:var(--accent);font-weight:700}
+.nb .badge{position:absolute;top:7px;left:calc(50% + 6px);background:var(--accent);color:var(--on-accent);font-family:var(--f-num);font-size:.6rem;min-width:17px;height:17px;border-radius:99px;display:grid;place-items:center;padding:0 4px}
+
+main{padding-block:14px calc(var(--nav) + 28px + env(safe-area-inset-bottom,0px));display:grid;gap:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;min-width:0}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.field{display:grid;gap:4px;min-width:0}
+.field label,.lbl{font-size:.76rem;color:var(--muted);font-weight:500;letter-spacing:.03em}
+input[type=text],input[type=number],input[type=date],input[type=search],select,textarea{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;width:100%;font-size:16px;min-height:46px}
+textarea{resize:vertical;line-height:1.6}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-grid .wide{grid-column:1/-1}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 16px;min-height:44px;font-weight:500;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{background:var(--soft)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn.block{width:100%;min-height:50px;font-size:1.02rem}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.btn.sm{min-height:36px;padding:5px 12px;font-size:.86rem;border-radius:10px}
+.btn.icon{min-width:44px;padding:0;border-color:transparent;background:none;color:var(--muted);font-size:1.05rem}
+.btn:disabled{opacity:.45;cursor:default}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;padding:1px 8px;border-radius:99px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.chip.sk::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c,var(--muted))}
+.chip.good{background:var(--ok-soft);color:var(--ok)} .chip.mid{background:var(--warn-soft);color:var(--warn)} .chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.ex{background:var(--accent-soft);color:var(--accent)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;padding-block:2px}
+.chips::-webkit-scrollbar{display:none}
+.fchip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:7px 14px;font-size:.88rem;white-space:nowrap;cursor:pointer;color:var(--muted);min-height:38px}
+.fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card);font-weight:700}
+.note{font-size:.84rem;color:var(--muted);background:var(--soft);border-radius:10px;padding:10px 12px}
+.banner{display:grid;gap:8px;background:var(--accent-soft);border-radius:12px;padding:12px 14px;font-size:.88rem}
+.empty{padding:20px 14px;text-align:center;color:var(--muted);font-size:.9rem;border:1px dashed var(--line);border-radius:12px}
+details.fold{border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+details.fold>summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;min-height:50px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"＋";color:var(--accent);font-size:1.2rem}
+details.fold[open]>summary::after{content:"−"}
+details.fold>.in{padding:0 16px 16px;display:grid;gap:12px}
+details.sub>summary{cursor:pointer;font-size:.86rem;color:var(--blue);padding:4px 0}
+
+/* home */
+.cd{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.cd>div{background:var(--card);padding:14px}
+.cd .k{font-size:.76rem;color:var(--muted)}
+.cd .d{font-family:var(--f-num);font-size:2.3rem;line-height:1.1;color:var(--accent)}
+.cd .d small{font-family:var(--f-ui);font-size:.85rem;color:var(--ink);margin-left:2px}
+.cd .dt{font-size:.78rem}
+.cd .past .d{color:var(--muted);font-size:1.2rem}
+.phase{display:inline-block;font-weight:700;font-size:.8rem;color:var(--card);background:var(--ink);padding:2px 10px;border-radius:6px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat{background:var(--card);padding:12px 14px}
+.stat b{display:block;font-family:var(--f-num);font-size:1.4rem;line-height:1.2}
+.stat span{font-size:.75rem;color:var(--muted)}
+.bar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;background:var(--c,var(--accent))}
+.book{display:grid;gap:5px}
+.book-h{display:flex;justify-content:space-between;gap:8px;font-size:.86rem}
+
+/* lists */
+.list{display:grid}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .t{min-width:0;overflow-wrap:anywhere}
+.item.done .t .ttl{text-decoration:line-through;color:var(--muted)}
+.check{width:26px;height:26px;accent-color:var(--accent);margin:0}
+.complete{grid-column:1/-1;display:grid;gap:8px;background:var(--soft);padding:12px;border-radius:12px}
+.complete .row input{width:96px}
+
+/* words */
+.wcard{display:grid;gap:4px;padding:12px 0;border-top:1px solid var(--line)}
+.wcard:first-child{border-top:0}
+.wtop{display:flex;align-items:center;gap:4px;justify-content:space-between}
+.wtop .w{font-family:var(--f-en);font-size:1.3rem;font-weight:600;overflow-wrap:anywhere;min-width:0}
+.wmeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.boxes{display:inline-flex;gap:2px}
+.boxes i{width:9px;height:9px;border-radius:2px;background:var(--soft);border:1px solid var(--line)}
+.boxes i.on{background:var(--s-voc);border-color:var(--s-voc)}
+.boxes.m i.on{background:var(--ok);border-color:var(--ok)}
+
+/* quiz */
+.qprog{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--muted)}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 16px;display:grid;gap:14px;text-align:center}
+.qword{font-family:var(--f-en);font-size:2.2rem;font-weight:600;line-height:1.15;overflow-wrap:anywhere}
+.qword.ja{font-family:var(--f-ui);font-size:1.4rem}
+.qmeta{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;min-height:56px;cursor:pointer;font-size:1.02rem;display:flex;gap:10px;align-items:center}
+.opt kbd{font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt.en-o{font-family:var(--f-en);font-size:1.15rem}
+@media (hover:none){.opt kbd{display:none}}
+.sheet-zone{position:relative;border-radius:12px;min-height:110px;display:grid;place-items:center;padding:14px;cursor:pointer}
+.sheet-ans{color:var(--accent);font-weight:700;font-size:1.3rem}
+.sheet-ex{font-family:var(--f-en);font-style:italic;color:var(--muted);font-size:.98rem;margin-top:4px}
+.sheet{position:absolute;inset:0;border-radius:12px;background:var(--accent);opacity:.94;display:grid;place-items:center;color:var(--on-accent);font-size:.85rem;letter-spacing:.12em;transition:transform .35s ease,opacity .35s}
+.sheet.off{transform:translateY(110%);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.sheet{transition:none}}
+.selfbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.feedback{font-weight:700}
+.feedback.ok{color:var(--ok)} .feedback.ng{color:var(--bad)}
+.big-score{font-family:var(--f-num);font-size:3rem;line-height:1}
+
+/* charts */
+.chart svg{display:block;width:100%;height:auto}
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--f-num)}
+.legend{display:flex;gap:4px 10px;flex-wrap:wrap;font-size:.72rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend span::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--c)}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-auto-columns:1fr;gap:3px}
+.heat i{aspect-ratio:1;border-radius:2px;background:var(--soft);max-width:100%}
+.heat i.l1{background:color-mix(in srgb,var(--accent) 30%,var(--soft))}
+.heat i.l2{background:color-mix(in srgb,var(--accent) 55%,var(--soft))}
+.heat i.l3{background:color-mix(in srgb,var(--accent) 80%,var(--soft))}
+.heat i.l4{background:var(--accent)}
+.hbar{display:grid;grid-template-columns:5.2em 1fr 4.6em;gap:8px;align-items:center;font-size:.84rem}
+.hbar .bar{height:10px}
+.timer{font-family:var(--f-num);font-size:2.6rem;line-height:1;text-align:center}
+
+/* mock */
+.mcard{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.mcard:first-child{border-top:0}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mgrid>div{background:var(--paper);border-radius:10px;padding:8px;text-align:center;min-width:0}
+.mgrid b{display:block;font-family:var(--f-num);font-size:1.05rem}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-grid .field input{text-align:right}
+.groupt{grid-column:1/-1;font-size:.78rem;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:2px;margin-top:4px}
+
+/* writing */
+.wc{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wc b{font-family:var(--f-num);font-size:1.4rem}
+.range{position:relative;height:10px;background:var(--soft);border-radius:99px;flex:1;min-width:120px}
+.range .zone{position:absolute;top:0;bottom:0;background:var(--ok-soft);border:1px solid var(--ok);border-radius:99px}
+.range .pin{position:absolute;top:-4px;width:4px;height:18px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.essay-text{font-family:var(--f-en);font-size:1.05rem}
+.checks{display:grid;gap:8px;font-size:.92rem}
+.checks label{display:flex;gap:10px;align-items:flex-start}
+.selfsc{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+details.tplbox{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+details.tplbox summary{cursor:pointer;font-weight:700;font-size:.92rem}
+details.tplbox[open] summary{margin-bottom:8px}
+.tpl{font-family:var(--f-en);font-size:.95rem;background:var(--paper);border-radius:8px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.essay-item summary{cursor:pointer;padding:10px 0;font-size:.9rem}
+
+/* more / guide */
+.menu{display:grid;gap:10px}
+.menu button{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:14px 16px;cursor:pointer}
+.menu svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.menu b{display:block}
+.menu span{font-size:.8rem;color:var(--muted)}
+.guide{display:grid;gap:10px;font-size:.92rem}
+.guide ul,.guide ol{margin:0;padding-left:1.3em;display:grid;gap:6px}
+.fmt{display:grid;gap:8px}
+.fmt>div{display:grid;gap:3px;padding:10px 12px;background:var(--paper);border-radius:10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.9rem;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.sync{font-size:.72rem;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block}
+.sync.ok i{background:var(--ok)} .sync.err i{background:var(--bad)}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--nav) + 14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--card);padding:9px 18px;border-radius:99px;font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:calc(100% - 32px);text-align:center}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand"><span class="mark" aria-hidden="true">準1</span><h1>合格デスク</h1></div>
+    <div class="count" id="count"></div>
+  </div>
+</header>
+<main class="wrap" id="main"></main>
+<nav class="nav" aria-label="画面"><div class="nav-in" id="nav"></div></nav>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- constants ---------- */
+const SK = {
+  voc:{n:'語彙', c:'var(--s-voc)'}, read:{n:'読解', c:'var(--s-read)'}, lis:{n:'リスニング', c:'var(--s-lis)'},
+  sum:{n:'要約', c:'var(--s-sum)'}, ess:{n:'意見文', c:'var(--s-ess)'}, spk:{n:'面接', c:'var(--s-spk)'}
+};
+const BK = {pass:'でる順パス単', kyo:'総合対策教本', kako:'過去6回全問題集', app:'このアプリ', other:'その他'};
+const SEC = ['単語 でる度A','単語 でる度B','単語 でる度C','熟語 でる度A','熟語 でる度B','過去問で出た','その他'];
+const SRC = {pass:'パス単', kako:'過去問', kyo:'教本', other:'その他'};
+const INT = [0,1,2,4,7,15,30]; // Leitner box -> 次の復習まで(日)
+const MASTER = 6;
+const MOCK = [ // 2024年度リニューアル後の問題数（ライティングは観点別4点×4）
+  {k:'voc', n:'語彙 (大問1)', max:18, g:'R'}, {k:'cloze', n:'空所補充 (大問2)', max:6, g:'R'}, {k:'comp', n:'内容一致 (大問3)', max:7, g:'R'},
+  {k:'sum', n:'要約', max:16, g:'W'}, {k:'ess', n:'意見論述', max:16, g:'W'},
+  {k:'l1', n:'Part1 会話', max:12, g:'L'}, {k:'l2', n:'Part2 文章', max:6, g:'L'}, {k:'l3', n:'Part3 Real-Life', max:5, g:'L'}
+];
+const IC = {
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+  words:'<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/><path d="M7 11h6M7 15h4"/>',
+  quiz:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 12h18"/><path d="M8 8h3M8 16h6"/>',
+  todo:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.5 1.5L7 5M3.5 12l1.5 1.5L7 11M3.5 18l1.5 1.5L7 17"/>',
+  log:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  mock:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h5"/>',
+  write:'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
+  guide:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6"/>'
+};
+const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg>`;
+const NAV = [['home','ホーム'],['words','単語帳'],['quiz','クイズ'],['todo','TODO'],['log','記録'],['more','その他']];
+const MORE_TABS = ['more','mock','write','guide'];
+const VIEW_KEYS = ['home','words','quiz','todo','log','more','mock','write','guide'];
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pad = n => String(n).padStart(2,'0');
+const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => fmt(new Date());
+const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate()+n); return fmt(d); };
+const diffDays = (a, b) => Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00')) / 864e5);
+const md = iso => { if (!iso) return '—'; const [,m,d] = iso.split('-'); return `${+m}/${+d}`; };
+const WD = ['日','月','火','水','木','金','土'];
+const wd = iso => iso ? WD[new Date(iso+'T00:00:00').getDay()] : '';
+const hm = min => min >= 60 ? `${Math.floor(min/60)}時間${min%60 ? (min%60)+'分' : ''}` : `${min}分`;
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const wcount = t => (t.trim().match(/[A-Za-z0-9][A-Za-z0-9'’\-]*/g) || []).length;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>t.classList.remove('on'), 2200); }
+function speak(text){ try{ const u = new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){ toast('この環境では発音を再生できません'); } }
+const skChip = k => `<span class="chip sk" style="--c:${SK[k]?.c}">${esc(SK[k]?.n || k)}</span>`;
+const skOpts = sel => Object.entries(SK).map(([k,v]) => `<option value="${k}" ${k===sel?'selected':''}>${v.n}</option>`).join('');
+const bkOpts = sel => Object.entries(BK).map(([k,v]) => `<option value="${k}" ${k===sel?'selected':''}>${v}</option>`).join('');
+const fchips = (act, cur, items) => `<div class="chips" role="group">${items.map(([k,n]) => `<button class="fchip" data-act="${act}" data-k="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`;
+
+/* ---------- state + storage ---------- */
+const KEYS = ['words','todos','logs','mocks','essays','settings'];
+const DEFAULT_SETTINGS = {exam:'2027-01-24', exam2a:'2027-02-28', exam2b:'2027-03-07', exam2pick:'', daily:30, kyoDone:0, kyoTotal:20};
+let S = {words:[], todos:[], logs:[], mocks:[], essays:[], settings:{...DEFAULT_SETTINGS}};
+let db = null, me = null, syncMode = 'local';
+const LS = 'eikenp1:';
+function lsGet(k){ try{ const v = localStorage.getItem(LS+k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function lsSet(k, v){ try{ localStorage.setItem(LS+k, JSON.stringify(v)); }catch(e){} }
+function fixSettings(s){ s = {...DEFAULT_SETTINGS, ...(s||{})}; ['exam','exam2a','exam2b'].forEach(k => { if (!s[k]) s[k] = DEFAULT_SETTINGS[k]; }); return s; }
+const dirty = new Set(); let flushT;
+function save(k){ lsSet(k, S[k]); dirty.add(k); clearTimeout(flushT); flushT = setTimeout(flush, 700); }
+const CHUNK = 250;
+const dpath = k => `data/users/${me}/${k}`;
+async function flush(){
+  if (!db || !me) return;
+  for (const k of [...dirty]) {
+    dirty.delete(k);
+    try {
+      if (k === 'settings') { await db.doc(dpath(k)).set({v:S.settings, at:Date.now()}); }
+      else {
+        const arr = S[k], n = Math.max(1, Math.ceil(arr.length / CHUNK));
+        const prev = (await db.doc(dpath(k)).get()).data?.()?.n || 0;
+        for (let i=0;i<n;i++) await db.doc(dpath(`${k}.${i}`)).set({v:arr.slice(i*CHUNK,(i+1)*CHUNK)});
+        for (let i=n;i<prev;i++) await db.doc(dpath(`${k}.${i}`)).delete();
+        await db.doc(dpath(k)).set({n, at:Date.now()});
+      }
+      setSync('ok');
+    } catch(e) {
+      if (e?.code === 'unavailable') { dirty.add(k); setTimeout(flush, 1500 + Math.random()*1000); }
+      setSync('err', e?.code === 'quota_exceeded' ? '保存容量の上限です' : '保存に失敗しました');
+    }
+  }
+}
+async function loadRemote(){
+  const out = {}; let any = false;
+  for (const k of KEYS) {
+    const snap = await db.doc(dpath(k)).get();
+    if (!snap.exists) continue;
+    any = true;
+    const d = snap.data();
+    if (k === 'settings') { out[k] = fixSettings(d.v); continue; }
+    let arr = [];
+    for (let i=0;i<(d.n||0);i++){ const c = await db.doc(dpath(`${k}.${i}`)).get(); if (c.exists) arr = arr.concat(c.data().v || []); }
+    out[k] = arr;
+  }
+  return any ? out : null;
+}
+function setSync(mode, msg){ syncMode = mode; const el = $('#syncState'); if (el) el.outerHTML = syncHtml(msg); }
+function syncHtml(msg){
+  const t = {local:'この端末のブラウザに保存', ok:'アカウントに保存済み', err: msg || '保存エラー', wait:'読み込み中…'}[syncMode];
+  return `<span id="syncState" class="sync ${syncMode}"><i></i>${esc(t)}</span>`;
+}
+function loadLocal(){
+  let found = false;
+  for (const k of KEYS){ const v = lsGet(k); if (v != null){ if (k !== 'settings') found = true; S[k] = k==='settings' ? fixSettings(v) : v; } }
+  return found;
+}
+async function initRemote(){
+  const c = window.claude; if (!c?.use) { setSync('local'); return; }
+  try {
+    const [d, u] = await Promise.all([c.use('db'), c.use('user')]);
+    if (!d || !u) { setSync('local'); return; }
+    const id = await u.id(); if (!id) { setSync('local'); return; }
+    db = d; me = id; setSync('wait');
+    const remote = await loadRemote();
+    if (remote) { for (const k of KEYS) if (remote[k]) { S[k] = remote[k]; lsSet(k, S[k]); } render(); setSync('ok'); }
+    else { const hasReal = KEYS.some(k => k!=='settings' && S[k].some(x => !x.sample)); if (hasReal) { KEYS.forEach(k => dirty.add(k)); flush(); } else setSync('ok'); }
+  } catch(e) { db = null; setSync('local'); }
+}
+function seedExamples(){
+  const t = today();
+  const w = [['alleviate','（苦痛など）を和らげる','単語 でる度A','The new drug helped alleviate her symptoms.'],
+    ['deteriorate','悪化する','単語 でる度A','Relations between the two countries deteriorated.'],
+    ['meticulous','細心の、几帳面な','単語 でる度B','He kept meticulous records of his expenses.'],
+    ['plausible','もっともらしい','単語 でる度B','She gave a plausible excuse for being late.'],
+    ['curtail','～を削減する、切り詰める','単語 でる度A','The company curtailed its spending.'],
+    ['scrutinize','～を精査する','単語 でる度B','Inspectors scrutinized the documents.'],
+    ['inadvertently','うっかり、不注意で','単語 でる度C','He inadvertently deleted the file.'],
+    ['come down with','（病気）にかかる','熟語 でる度A','I came down with a cold last week.']];
+  S.words = w.map(([en,ja,sec,ex],i) => ({id:uid(), en, ja, sec, src:'pass', page:'', ex, note:'', box: i%3, due: i<5 ? t : addDays(t, 2), ok:0, ng:0, created:t, sample:true}));
+  S.todos = [{id:uid(), title:'パス単 でる度A 新出30語＋クイズで復習', skill:'voc', book:'pass', date:t, min:30, done:false, sample:true},
+    {id:uid(), title:'教本で要約問題の解き方を読む', skill:'sum', book:'kyo', date:t, min:30, done:false, sample:true}];
+  S.logs = [{id:uid(), date:addDays(t,-1), skill:'voc', book:'pass', min:35, text:'パス単 p.12–20', sample:true},
+    {id:uid(), date:addDays(t,-2), skill:'lis', book:'kako', min:30, text:'過去問 Part1 ディクテーション', sample:true}];
+}
+
+/* ---------- derived ---------- */
+function minutesOn(date){ return S.logs.filter(l => l.date===date).reduce((a,l)=>a+(+l.min||0),0); }
+function streak(){
+  let d = today(), n = 0;
+  if (!minutesOn(d)) d = addDays(d,-1);
+  while (minutesOn(d) > 0) { n++; d = addDays(d,-1); }
+  return n;
+}
+function weekMinutes(){ const t = today(); let s=0; for (let i=0;i<7;i++) s += minutesOn(addDays(t,-i)); return s; }
+const dueWords = () => S.words.filter(w => w.box < MASTER && w.due <= today());
+const weakWords = () => S.words.filter(w => w.ng > 0 && w.ng >= w.ok || (w.box <= 1 && (w.ok+w.ng) > 0));
+// 二次: 日程が決まっていなければ早いA日程まで数え、二次対策期はB日程まで続ける
+const exam2 = () => { const s = S.settings; return s.exam2pick === 'b' ? s.exam2b : s.exam2a; };
+const exam2Last = () => { const s = S.settings; return s.exam2pick === 'a' ? s.exam2a : (s.exam2b || s.exam2a); };
+function daysLeft(){ return S.settings.exam ? diffDays(today(), S.settings.exam) : null; }
+function phase(){
+  const d = daysLeft(), t = today();
+  if (d == null) return {k:'base', n:'基礎固め期', tip:'試験日を設定しましょう。'};
+  if (d >= 0) {
+    if (d <= 21) return {k:'final', n:'直前期', tip:'過去問2周目と要約・意見文を毎日。新しい単語より、間違えた単語の総復習を優先します。'};
+    if (d <= 60) return {k:'drill', n:'演習期', tip:'過去6回全問題集を時間を計って週1回。解いた後の復習（語彙登録・スクリプト音読）に解く時間以上をかけます。'};
+    return {k:'base', n:'基礎固め期', tip:'総合対策教本で各大問の解き方を学び、パス単は「でる度A」から1周目を終わらせます。'};
+  }
+  if (exam2Last() && t <= exam2Last()) return {k:'spk', n:'二次対策期', tip:'一次の自己採点が済んだら、すぐ面接対策へ。4コマを毎日1枚「準備1分・話す2分」で練習し、社会的な話題に「意見＋理由」で答える練習をします。'};
+  return {k:'done', n:'試験終了', tip:'お疲れさまでした。次の試験日を設定すると、新しいプランが作れます。'};
+}
+
+/* ---------- render core ---------- */
+let tab = 'home';
+try { const h = location.hash.slice(1); if (VIEW_KEYS.includes(h)) tab = h; } catch(e){}
+function renderNav(){
+  const due = dueWords().length;
+  $('#nav').innerHTML = NAV.map(([k,n]) => {
+    const cur = k === tab || (k === 'more' && MORE_TABS.includes(tab));
+    return `<button class="nb" data-act="tab" data-k="${k}" ${cur?'aria-current="page"':''}>${svg(k)}<span>${n}</span>${k==='quiz' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</button>`;
+  }).join('');
+}
+function renderCount(){
+  const d = daysLeft(), t = today(), e2 = exam2();
+  let h = '';
+  if (d != null && d >= 0) h = `一次まで<b>${d}</b>日`;
+  else if (e2 && t <= exam2Last()) h = `二次まで<b>${Math.max(0, diffDays(t, t <= e2 ? e2 : exam2Last()))}</b>日`;
+  $('#count').innerHTML = h;
+}
+function render(){
+  renderNav(); renderCount();
+  const keep = document.activeElement?.id;
+  $('#main').innerHTML = VIEW[tab]();
+  AFTER[tab]?.();
+  const ke = keep && keep.startsWith('keep-') && document.getElementById(keep);
+  if (ke) { ke.focus(); try { const L = ke.value.length; ke.setSelectionRange(L, L); } catch(e){} }
+}
+const AFTER = {};
+const VIEW = {};
+
+/* ---------- HOME ---------- */
+VIEW.home = () => {
+  const d = daysLeft(), ph = phase(), t = today(), s = S.settings;
+  const todays = S.todos.filter(x => x.date <= t && (!x.done || x.doneAt === t)).sort((a,b)=>a.done-b.done);
+  const mastered = S.words.filter(w => w.box >= MASTER).length;
+  const lap = n => new Set(S.mocks.filter(m => +m.lap === n).map(m => m.round)).size;
+  const sample = [...S.words, ...S.todos, ...S.logs].some(x => x.sample);
+  const e2 = exam2(), d2 = e2 ? diffDays(t, e2) : null, after2 = t > exam2Last();
+  return `
+  ${sample ? `<div class="banner"><span>単語・TODO・記録の一部は<b>例</b>です。自分のデータを入れたら消してください。</span><button class="btn sm" data-act="clearSamples">例をすべて削除</button></div>` : ''}
+  ${backupDue() ? `<div class="banner"><span>${lastBackup() ? `最後のバックアップから${diffDays(lastBackup(), t)}日たちました。` : 'まだバックアップがありません。'}記録はこのブラウザにだけ保存されています。</span><button class="btn sm" data-act="export">バックアップを保存</button></div>` : ''}
+  <div class="cd">
+    <div class="${d != null && d < 0 ? 'past' : ''}"><div class="k">一次試験</div>
+      <div class="d">${d == null ? '—' : d >= 0 ? `${d}<small>日</small>` : '終了'}</div>
+      <div class="dt num">${s.exam ? `${md(s.exam)}(${wd(s.exam)})` : '未設定'}</div></div>
+    <div class="${after2 ? 'past' : ''}"><div class="k">二次試験${s.exam2pick ? (s.exam2pick==='a'?' A日程':' B日程') : ''}</div>
+      <div class="d">${d2 == null ? '—' : !after2 ? `${Math.max(0,d2)}<small>日</small>` : '終了'}</div>
+      <div class="dt num">${s.exam2pick ? `${md(e2)}(${wd(e2)})` : `${md(s.exam2a)}(${wd(s.exam2a)}) / ${md(s.exam2b)}(${wd(s.exam2b)})`}</div></div>
+  </div>
+  <section class="panel">
+    <div><span class="phase">${ph.n}</span></div>
+    <p>${esc(ph.tip)}</p>
+    <details class="sub"><summary>試験日・設定を変更</summary>
+      <form data-form="settings" style="display:grid;gap:10px;margin-top:8px">
+        <div class="form-grid">
+          <div class="field wide"><label for="exam">一次試験日</label><input type="date" id="exam" name="exam" value="${esc(s.exam)}"></div>
+          <div class="field"><label for="exam2a">二次 A日程</label><input type="date" id="exam2a" name="exam2a" value="${esc(s.exam2a)}"></div>
+          <div class="field"><label for="exam2b">二次 B日程</label><input type="date" id="exam2b" name="exam2b" value="${esc(s.exam2b)}"></div>
+          <div class="field"><label for="exam2pick">二次の受験日程</label><select id="exam2pick" name="exam2pick"><option value="" ${!s.exam2pick?'selected':''}>未定</option><option value="a" ${s.exam2pick==='a'?'selected':''}>A日程</option><option value="b" ${s.exam2pick==='b'?'selected':''}>B日程</option></select></div>
+          <div class="field"><label for="daily">パス単 1日の新出語数</label><input type="number" id="daily" name="daily" min="5" max="200" value="${s.daily}" inputmode="numeric"></div>
+        </div>
+        <button class="btn pri block">保存</button>
+        <p class="small muted">二次の日程は一次合格後の受験票で決まります。決まったら「二次の受験日程」を選んでください。未定の間は早いA日程までの日数を表示します。</p>
+      </form>
+    </details>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><b>${hm(minutesOn(t))}</b><span>今日の学習</span></div>
+    <div class="stat"><b>${(weekMinutes()/60).toFixed(1)}<small style="font-size:.8rem">h</small></b><span>直近7日</span></div>
+    <div class="stat"><b>${streak()}<small style="font-size:.8rem">日</small></b><span>連続学習</span></div>
+    <div class="stat"><b style="color:var(--accent)">${dueWords().length}<small style="font-size:.8rem">語</small></b><span>今日の復習待ち</span></div>
+  </div>
+  ${dueWords().length ? `<button class="btn pri block" data-act="quickQuiz">復習待ちの ${dueWords().length} 語をクイズ</button>` : ''}
+
+  <section class="panel">
+    <div class="panel-h"><h2>今日のTODO</h2><button class="btn sm" data-act="plan">＋ 今週のプラン</button></div>
+    ${todays.length ? `<div class="list">${todays.map(todoItem).join('')}</div>` : `<div class="empty">今日のTODOはありません。<br>「今週のプラン」で、試験までの日数に合わせたメニューを入れられます。</div>`}
+  </section>
+
+  <section class="panel">
+    <h2>3冊の進み具合</h2>
+    <div class="book">
+      <div class="book-h"><span>パス単（登録した苦手語）</span><span class="num">${mastered}/${S.words.length} 習得</span></div>
+      <div class="bar" style="--c:var(--s-voc)"><i style="width:${S.words.length ? mastered/S.words.length*100 : 0}%"></i></div>
+    </div>
+    <div class="book">
+      <div class="book-h"><span>過去6回全問題集 1周目</span><span class="num">${lap(1)}/6</span></div>
+      <div class="bar" style="--c:var(--s-read)"><i style="width:${lap(1)/6*100}%"></i></div>
+      <div class="book-h"><span>2周目</span><span class="num">${lap(2)}/6</span></div>
+      <div class="bar" style="--c:var(--s-read)"><i style="width:${lap(2)/6*100}%"></i></div>
+    </div>
+    <div class="book">
+      <div class="book-h"><span>総合対策教本</span><span class="num">${s.kyoDone}/${s.kyoTotal}</span></div>
+      <div class="bar" style="--c:var(--s-sum)"><i style="width:${Math.min(100, s.kyoDone/Math.max(1,s.kyoTotal)*100)}%"></i></div>
+      <div class="row"><button class="btn sm" data-act="kyo" data-d="-1" aria-label="教本の進捗を1減らす">−1</button><button class="btn sm" data-act="kyo" data-d="1">＋1 章完了</button>
+        <span class="small muted">全体</span><input type="number" id="kyoTotal" min="1" max="99" value="${s.kyoTotal}" style="width:76px" data-chg="kyoTotal" inputmode="numeric" aria-label="教本の章の数"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>直近14日の学習時間</h2>
+    <div class="chart">${barChart(14)}</div>
+    ${legend()}
+  </section>`;
+};
+function todoItem(x){
+  return `<div class="item ${x.done?'done':''}">
+    <input type="checkbox" class="check" ${x.done?'checked':''} data-act="toggleTodo" data-id="${x.id}" aria-label="完了">
+    <div class="t"><div class="ttl">${esc(x.title)} ${x.sample?'<span class="chip ex">例</span>':''}</div>
+      <div class="row small" style="gap:5px;margin-top:2px">${skChip(x.skill)}<span class="muted num">${md(x.date)}(${wd(x.date)}) · ${x.min}分</span>${!x.done && x.date < today() ? '<span class="chip bad">期限切れ</span>' : ''}</div></div>
+    <button class="btn icon" data-act="delTodo" data-id="${x.id}" aria-label="削除">✕</button>
+    ${completing === x.id ? `<div class="complete"><div class="row"><span class="small">かかった時間</span><input type="number" id="keep-cmin" min="0" value="${x.min}" inputmode="numeric"><span class="small">分</span></div>
+      <div class="row"><button class="btn pri" data-act="finishTodo" data-id="${x.id}" data-log="1">記録して完了</button><button class="btn" data-act="finishTodo" data-id="${x.id}">記録せず完了</button><button class="btn ghost" data-act="cancelFinish">やめる</button></div></div>` : ''}
+  </div>`;
+}
+let completing = null;
+
+function legend(){ return `<div class="legend">${Object.values(SK).map(s=>`<span style="--c:${s.c}">${s.n}</span>`).join('')}</div>`; }
+function barChart(n){
+  const t = today(), days = Array.from({length:n}, (_,i) => addDays(t, i-n+1));
+  const data = days.map(d => { const o = {}; S.logs.filter(l=>l.date===d).forEach(l => o[l.skill] = (o[l.skill]||0) + (+l.min||0)); return o; });
+  const tot = data.map(o => Object.values(o).reduce((a,b)=>a+b,0));
+  const maxV = Math.max(60, ...tot), step = maxV > 240 ? 120 : 60, top = Math.ceil(maxV/step)*step;
+  const W = 360, H = 180, L = 28, B = 22, T = 8, bw = (W-L-4)/n;
+  const y = v => T + (H-T-B) * (1 - v/top);
+  let g = '';
+  for (let v=0; v<=top; v+=step) g += `<line x1="${L}" x2="${W-2}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-4}" y="${y(v)+3}" text-anchor="end">${v/60}h</text>`;
+  const every = Math.ceil(n/5);
+  data.forEach((o,i) => {
+    let acc = 0; const x = L + i*bw + bw*.16, w = bw*.68;
+    Object.keys(SK).forEach(k => { if (!o[k]) return; const y0 = y(acc), y1 = y(acc+o[k]); g += `<rect x="${x}" y="${y1}" width="${w}" height="${Math.max(0,y0-y1)}" fill="${SK[k].c}"><title>${md(days[i])} ${SK[k].n} ${o[k]}分</title></rect>`; acc += o[k]; });
+    if ((n-1-i) % every === 0) g += `<text x="${x+w/2}" y="${H-6}" text-anchor="middle" ${days[i]===t?'style="fill:var(--ink);font-weight:700"':''}>${md(days[i])}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="直近${n}日の学習時間（技能別）">${g}</svg>`;
+}
+
+/* ---------- WORDS ---------- */
+let wf = {q:'', sec:'', st:'all'}, editing = null, wShow = 60, lastSec = '単語 でる度A', lastSrc = 'pass';
+VIEW.words = () => {
+  const e = editing ? S.words.find(w => w.id === editing) : null;
+  const list = S.words.filter(w => {
+    if (wf.q && !(w.en.toLowerCase().includes(wf.q.toLowerCase()) || w.ja.includes(wf.q))) return false;
+    if (wf.sec && w.sec !== wf.sec) return false;
+    if (wf.st === 'due') return w.box < MASTER && w.due <= today();
+    if (wf.st === 'weak') return weakWords().includes(w);
+    if (wf.st === 'master') return w.box >= MASTER;
+    return true;
+  }).sort((a,b) => (b.created||'').localeCompare(a.created||''));
+  return `
+  <section class="panel">
+    <h2>${e ? '単語を編集' : 'わからなかった単語をメモ'}</h2>
+    <form data-form="word" style="display:grid;gap:10px">
+      <input type="text" id="w-en" name="en" required value="${esc(e?.en)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="en" style="font-size:1.15rem" placeholder="英単語・熟語（例: alleviate）" aria-label="英単語・熟語">
+      <input type="text" id="w-ja" name="ja" required value="${esc(e?.ja)}" autocomplete="off" placeholder="意味（例: 和らげる）" aria-label="意味">
+      <details class="sub" ${e ? 'open' : ''}><summary>区分・出典・例文など（${esc(e?.sec || lastSec)} / ${esc(SRC[e?.src || lastSrc])}）</summary>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="field"><label for="w-sec">パス単の区分</label><select id="w-sec" name="sec">${SEC.map(s=>`<option ${s===(e?.sec||lastSec)?'selected':''}>${s}</option>`).join('')}</select></div>
+          <div class="field"><label for="w-src">出典</label><select id="w-src" name="src">${Object.entries(SRC).map(([k,v])=>`<option value="${k}" ${k===(e?.src||lastSrc)?'selected':''}>${v}</option>`).join('')}</select></div>
+          <div class="field wide"><label for="w-page">ページ / 番号</label><input type="text" id="w-page" name="page" value="${esc(e?.page)}" placeholder="例: p.24 / No.0123"></div>
+          <div class="field wide"><label for="w-ex">例文</label><input type="text" id="w-ex" name="ex" value="${esc(e?.ex)}" placeholder="パス単の例文や過去問の文"></div>
+          <div class="field wide"><label for="w-note">メモ</label><input type="text" id="w-note" name="note" value="${esc(e?.note)}" placeholder="派生語・覚え方など"></div>
+        </div>
+      </details>
+      <div class="row"><button class="btn pri" style="flex:1">${e ? '更新する' : '追加する'}</button>${e ? '<button type="button" class="btn" data-act="cancelEdit">キャンセル</button>' : ''}</div>
+    </form>
+    ${e ? '' : `<details class="sub"><summary>まとめて追加（1行1語）</summary>
+      <div style="display:grid;gap:8px;margin-top:8px">
+        <p class="small muted">「単語,意味」の形で1行に1語。区分と出典は上の設定が使われます。</p>
+        <textarea id="bulk" rows="6" placeholder="mitigate,緩和する&#10;provoke,引き起こす&#10;in the wake of,～の結果として"></textarea>
+        <button class="btn" data-act="bulk">まとめて追加</button>
+      </div></details>`}
+  </section>
+
+  <section class="panel">
+    <div class="panel-h"><h2>単語帳</h2><span class="muted num small">${list.length} / ${S.words.length} 語</span></div>
+    <input type="search" id="keep-wq" placeholder="検索（英語・日本語）" value="${esc(wf.q)}" data-inp="wq" aria-label="単語を検索">
+    ${fchips('wst', wf.st, [['all','すべて'],['due','復習待ち'],['weak','苦手'],['master','習得']])}
+    <select id="wsec" data-chg="wsec" aria-label="区分で絞り込み"><option value="">区分: すべて</option>${SEC.map(s=>`<option ${s===wf.sec?'selected':''}>${s}</option>`).join('')}</select>
+    ${list.length ? `<div>${list.slice(0, wShow).map(w => `<div class="wcard">
+        <div class="wtop"><span class="w">${esc(w.en)}</span>
+          <span class="row" style="gap:0;flex-wrap:nowrap"><button class="btn icon" data-act="speak" data-t="${esc(w.en)}" aria-label="${esc(w.en)} を発音">🔊</button><button class="btn icon" data-act="editWord" data-id="${w.id}" aria-label="編集">✎</button><button class="btn icon" data-act="delWord" data-id="${w.id}" aria-label="削除">✕</button></span></div>
+        <div>${esc(w.ja)}</div>
+        ${w.ex?`<div class="small muted en" style="font-style:italic">${esc(w.ex)}</div>`:''}${w.note?`<div class="small muted">${esc(w.note)}</div>`:''}
+        <div class="wmeta"><span class="boxes ${w.box>=MASTER?'m':''}" title="定着度 ${w.box}/${MASTER}">${Array.from({length:MASTER},(_,i)=>`<i class="${i<w.box?'on':''}"></i>`).join('')}</span>
+          ${w.box>=MASTER ? '<span class="chip good">習得</span>' : w.due<=today() ? '<span class="chip bad">今日復習</span>' : `<span class="chip num">次 ${md(w.due)}</span>`}
+          <span class="chip">${esc(w.sec)}</span>${w.page?`<span class="chip">${esc(w.page)}</span>`:''}${w.sample?'<span class="chip ex">例</span>':''}<span class="small muted num">○${w.ok} ✕${w.ng}</span></div>
+      </div>`).join('')}</div>
+      ${list.length > wShow ? `<button class="btn" data-act="moreWords">さらに表示（残り${list.length - wShow}語）</button>` : ''}`
+      : `<div class="empty">${S.words.length ? '条件に合う単語はありません。' : 'パス単でわからなかった単語を上から追加すると、ここに並び、クイズで出題されます。'}</div>`}
+    <p class="small muted">クイズで正解するたびに定着度が1段上がり、次の復習が 1→2→4→7→15→30日後 と延びます。間違えると最初からやり直しです。</p>
+  </section>`;
+};
+
+/* ---------- QUIZ ---------- */
+let qs = {pool:'due', sec:'', mode:'mc-ej', n:20};
+let Q = null;
+VIEW.quiz = () => Q ? (Q.finished ? quizResult() : quizPlay()) : quizSetup();
+function poolWords(){
+  let p = S.words;
+  if (qs.sec) p = p.filter(w => w.sec === qs.sec);
+  if (qs.pool === 'due') p = p.filter(w => w.box < MASTER && w.due <= today());
+  if (qs.pool === 'weak') p = p.filter(w => weakWords().includes(w));
+  if (qs.pool === 'new') p = p.filter(w => w.ok + w.ng === 0);
+  return p;
+}
+function quizSetup(){
+  const n = poolWords().length;
+  const pools = [['due',`復習待ち ${dueWords().length}`],['weak',`苦手 ${weakWords().length}`],['new',`未出題 ${S.words.filter(w=>w.ok+w.ng===0).length}`],['all',`すべて ${S.words.length}`]];
+  const modes = [['mc-ej','4択 英→日'],['mc-je','4択 日→英'],['card','赤シート'],['spell','つづり']];
+  return `
+  <section class="panel">
+    <h2>単語クイズ</h2>
+    <div class="field"><span class="lbl">出題範囲</span>${fchips('qpool', qs.pool, pools)}</div>
+    <div class="field"><span class="lbl">形式</span>${fchips('qmode', qs.mode, modes)}</div>
+    <div class="form-grid">
+      <div class="field"><label for="qsec">パス単の区分</label><select id="qsec" data-chg="qsec"><option value="">すべて</option>${SEC.map(s=>`<option ${s===qs.sec?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label for="qn">問題数</label><select id="qn" data-chg="qn">${[10,20,30,50,999].map(v=>`<option value="${v}" ${v===qs.n?'selected':''}>${v===999?'全部':v+'問'}</option>`).join('')}</select></div>
+    </div>
+    <button class="btn pri block" data-act="startQuiz" ${n?'':'disabled'}>${n ? `${Math.min(n,qs.n)}問で始める` : 'この範囲には単語がありません'}</button>
+    ${qs.mode.startsWith('mc') && S.words.length < 4 ? '<p class="small muted">4択には単語が4語以上必要です。少ないうちは赤シートで出題します。</p>' : ''}
+  </section>
+  <div class="note">赤シートは、赤い帯をタップすると意味が見えます。思い出せたかを自分で判定してください。4択とつづりは自動で採点します。</div>`;
+}
+function startQuiz(words){
+  const items = shuffle(words).slice(0, qs.n);
+  let mode = qs.mode;
+  if (mode.startsWith('mc') && S.words.length < 4) mode = 'card';
+  Q = {mode, items: items.map(w => w.id), i:0, res:[], start:Date.now(), ans:null, opts:null, revealed:false};
+  prepQ(); tab = 'quiz'; render(); window.scrollTo(0,0);
+}
+function prepQ(){
+  const w = curW(); Q.ans = null; Q.revealed = false;
+  if (Q.mode.startsWith('mc')) {
+    const key = Q.mode === 'mc-ej' ? 'ja' : 'en';
+    const others = shuffle(S.words.filter(x => x.id !== w.id && x[key] !== w[key])).slice(0,3).map(x => x[key]);
+    Q.opts = shuffle([w[key], ...others]);
+  }
+}
+const curW = () => S.words.find(w => w.id === Q.items[Q.i]);
+function quizPlay(){
+  const w = curW(); if (!w) { Q.finished = true; Q.end = Date.now(); return quizResult(); }
+  const total = Q.items.length, done = Q.i;
+  let body = '';
+  const meta = `<div class="qmeta"><span class="chip">${esc(w.sec)}</span>${w.page?`<span class="chip">${esc(w.page)}</span>`:''}</div>`;
+  if (Q.mode === 'mc-ej' || Q.mode === 'card') body = `<div class="qword">${esc(w.en)}</div><div><button class="btn sm" data-act="speak" data-t="${esc(w.en)}">🔊 発音</button></div>`;
+  else body = `<div class="qword ja">${esc(w.ja)}</div>`;
+  let ctrl = '';
+  if (Q.mode.startsWith('mc')) {
+    const key = Q.mode === 'mc-ej' ? 'ja' : 'en';
+    ctrl = `<div class="opts">${Q.opts.map((o,i) => {
+      let cls = Q.mode==='mc-je'?'en-o':'';
+      if (Q.ans != null) { if (o === w[key]) cls += ' right'; else if (i === Q.ans) cls += ' wrong'; }
+      return `<button class="opt ${cls}" data-act="pick" data-i="${i}" ${Q.ans!=null?'disabled':''}><kbd>${i+1}</kbd><span>${esc(o)}</span></button>`; }).join('')}</div>`;
+  } else if (Q.mode === 'card') {
+    ctrl = `<div class="sheet-zone" data-act="reveal" role="button" tabindex="0" aria-label="意味を表示"><div><div class="sheet-ans">${esc(w.ja)}</div>${w.ex?`<div class="sheet-ex">${esc(w.ex)}</div>`:''}</div><div class="sheet ${Q.revealed?'off':''}">タップで めくる</div></div>
+      ${Q.revealed && Q.ans==null ? `<div class="selfbtns"><button class="btn block" data-act="self" data-ok="0">✕ 忘れた</button><button class="btn pri block" data-act="self" data-ok="1">○ 覚えてた</button></div>` : ''}`;
+  } else {
+    ctrl = `<form data-form="spell" style="display:grid;gap:10px"><input type="text" id="keep-spell" name="a" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="en" style="font-size:1.25rem;text-align:center" ${Q.ans!=null?'disabled':''} placeholder="英語でつづる" aria-label="答え"><button class="btn pri block" ${Q.ans!=null?'disabled':''}>答える</button></form>
+      ${Q.ans==null ? `<div class="small muted">ヒント: ${esc(w.en[0])}${'＿'.repeat(Math.max(0,w.en.length-1))}（${w.en.length}文字）</div>` : ''}`;
+  }
+  let fb = '';
+  if (Q.ans != null) {
+    const ok = Q.res[Q.res.length-1].ok;
+    fb = `<div class="feedback ${ok?'ok':'ng'}">${ok?'正解':'不正解'}　<span class="en" style="font-weight:600">${esc(w.en)}</span> = ${esc(w.ja)}</div>
+      ${w.ex && Q.mode!=='card' ? `<div class="sheet-ex">${esc(w.ex)}</div>` : ''}
+      <button class="btn pri block" data-act="next" id="keep-next">${Q.i+1 < total ? '次へ' : '結果を見る'}</button>`;
+  }
+  return `
+    <div class="qprog"><span class="num">${done+1} / ${total}　正解 ${Q.res.filter(r=>r.ok).length}</span><button class="btn sm ghost" data-act="quitQuiz">中断</button></div>
+    <div class="bar"><i style="width:${done/total*100}%"></i></div>
+    <div class="qcard">${meta}${body}${ctrl}${fb}</div>`;
+}
+AFTER.quiz = () => { const s = $('#keep-spell'); if (s && !s.disabled) s.focus(); };
+function grade(ok){
+  const w = curW(); const t = today();
+  Q.res.push({id:w.id, ok});
+  if (ok) { w.ok++; w.box = Math.min(MASTER, w.box+1); w.due = w.box >= MASTER ? addDays(t, 60) : addDays(t, INT[w.box]); }
+  else { w.ng++; w.box = 0; w.due = t; }
+  w.last = t; save('words');
+}
+function quizResult(){
+  const ok = Q.res.filter(r=>r.ok).length, n = Q.res.length;
+  const wrong = Q.res.filter(r=>!r.ok).map(r => S.words.find(w=>w.id===r.id)).filter(Boolean);
+  const min = Math.max(1, Math.round((Q.end - Q.start)/60000));
+  return `<section class="panel" style="text-align:center">
+    <div class="big-score">${ok}<span class="muted" style="font-size:1.4rem"> / ${n}</span></div>
+    <p>${n ? Math.round(ok/n*100) : 0}% 正解 · 約${min}分</p>
+    ${Q.logged ? '<p class="small muted">学習記録に追加しました。</p>' : n ? `<button class="btn block" data-act="logQuiz">この ${min} 分を学習記録に追加</button>` : ''}
+    ${wrong.length ? `<button class="btn pri block" data-act="retryWrong">間違えた ${wrong.length} 語だけもう一度</button>` : ''}
+    <button class="btn block" data-act="quitQuiz">クイズ設定に戻る</button>
+    ${wrong.length ? `<div style="text-align:left"><h3>間違えた単語</h3><div class="list">${wrong.map(w=>`<div class="item" style="grid-template-columns:1fr auto"><div class="t"><span class="en" style="font-weight:600;font-size:1.1rem">${esc(w.en)}</span><div class="small">${esc(w.ja)}</div></div><button class="btn icon" data-act="speak" data-t="${esc(w.en)}" aria-label="発音">🔊</button></div>`).join('')}</div></div>` : ''}
+  </section>`;
+}
+
+/* ---------- TODO ---------- */
+let tf = 'today';
+VIEW.todo = () => {
+  const t = today(), wEnd = addDays(t, 6);
+  const f = {today: x => !x.done && x.date <= t || x.done && x.doneAt === t, week: x => !x.done && x.date <= wEnd, late: x => !x.done && x.date < t, all: x => !x.done, done: x => x.done}[tf];
+  const list = S.todos.filter(f).sort((a,b) => a.date.localeCompare(b.date) || a.done - b.done);
+  const ph = phase();
+  return `
+  <section class="panel">
+    <div class="panel-h"><h2>TODO</h2><span class="small muted num">${list.length}件</span></div>
+    ${fchips('tf', tf, [['today','今日'],['week','今週'],['late','期限切れ'],['all','未完了'],['done','完了']])}
+    ${list.length ? `<div class="list">${list.map(todoItem).join('')}</div>` : '<div class="empty">ここに表示するTODOはありません。</div>'}
+    <p class="small muted">チェックを入れると、かかった時間を学習記録に残せます。</p>
+  </section>
+  <details class="fold"><summary>TODOを追加</summary><div class="in">
+    <form class="form-grid" data-form="todo">
+      <div class="field wide"><label for="t-title">やること</label><input type="text" id="t-title" name="title" required placeholder="例: 過去問 第3回 筆記を90分で"></div>
+      <div class="field"><label for="t-skill">技能</label><select id="t-skill" name="skill">${skOpts('voc')}</select></div>
+      <div class="field"><label for="t-book">教材</label><select id="t-book" name="book">${bkOpts('pass')}</select></div>
+      <div class="field"><label for="t-date">予定日</label><input type="date" id="t-date" name="date" value="${t}"></div>
+      <div class="field"><label for="t-min">目安(分)</label><input type="number" id="t-min" name="min" value="30" min="5" step="5" inputmode="numeric"></div>
+      <button class="btn pri block wide">追加</button>
+    </form></div></details>
+  <section class="panel">
+    <div class="panel-h"><h2>今週のプランを自動で作る</h2><span class="phase">${ph.n}</span></div>
+    <p class="small">${esc(ph.tip)}</p>
+    <p class="small muted">${planPreview(ph.k)}</p>
+    <button class="btn pri block" data-act="plan" ${ph.k==='done'?'disabled':''}>今日から7日分を追加</button>
+  </section>`;
+};
+function planFor(k){
+  const t = today(), dw = S.settings.daily, out = [];
+  const add = (i, title, skill, book, min) => out.push({title, skill, book, min, date:addDays(t,i)});
+  const e1 = S.settings.exam, e2 = exam2Last();
+  for (let i=0;i<7;i++){
+    const date = addDays(t,i), day = new Date(date+'T00:00:00').getDay();
+    if (k !== 'spk' && e1 && date >= e1) break;   // 試験当日以降は入れない
+    if (k === 'spk' && e2 && date >= e2) break;
+    if (k === 'spk') {
+      add(i, '4コマナレーション 1枚: 準備1分 → 2分で話す → 録音を聞き直す', 'spk', 'kyo', 20);
+      add(i, i%2 ? '面接の質疑: 社会的な話題に「意見＋理由2つ」で答える（3問）' : '面接の質疑: 絵に関する質問・自分の意見を問う質問（3問）', 'spk', i%2 ? 'kyo' : 'kako', 15);
+      if (day === 0 || day === 3) add(i, '教本の面接の章を読む・模範解答を音読', 'spk', 'kyo', 30);
+      add(i, '単語帳の復習待ちをクイズ（語彙を落とさない）', 'voc', 'app', 10);
+      continue;
+    }
+    if (k === 'final') add(i, 'パス単＋単語帳: 苦手・復習待ちを総ざらい（クイズ）', 'voc', 'app', 20);
+    else add(i, `パス単 新出${dw}語 → わからない語を単語帳へ → 復習クイズ`, 'voc', 'pass', 30);
+    if (k === 'base') {
+      if ([1,3,5].includes(day)) add(i, '総合対策教本 1章（例題を解いて解説を読む）', 'read', 'kyo', 40);
+      if ([2,4].includes(day)) add(i, '要約 1本（教本の例題 / 60〜70語）', 'sum', 'kyo', 25);
+      if (day === 6) add(i, '意見論述 1本（120〜150語・POINTSから2つ）', 'ess', 'kyo', 30);
+      if (day === 0) add(i, '教本のリスニング → 聞き取れなかった文をスクリプトで確認・音読', 'lis', 'kyo', 30);
+    } else if (k === 'drill') {
+      if (day === 6) add(i, '過去問 1回分 筆記（リーディング＋ライティング）を90分で通しで解く', 'read', 'kako', 90);
+      if (day === 0) add(i, '過去問 同じ回のリスニング → 採点 → スコアを「過去問」に記録', 'lis', 'kako', 60);
+      if (day === 1) add(i, '過去問の復習: 知らなかった語彙・熟語を単語帳に登録', 'voc', 'kako', 30);
+      if (day === 2) add(i, '過去問の要約を書き直す（模範解答と比較）', 'sum', 'kako', 25);
+      if ([3,5].includes(day)) add(i, 'リスニング スクリプトの音読・シャドーイング（Part1〜2）', 'lis', 'kako', 20);
+      if (day === 4) add(i, '意見論述 1本（過去問のトピック）', 'ess', 'kako', 30);
+    } else if (k === 'final') {
+      if ([6,3].includes(day)) add(i, '過去問 2周目 1回分を本番と同じ時間配分で', 'read', 'kako', 120);
+      add(i, i%2 ? '要約 1本（20分で書く）' : '意見論述 1本（25分で書く）', i%2 ? 'sum' : 'ess', 'kako', 25);
+      if ([2,5].includes(day)) add(i, '面接: 4コマナレーション 1分準備＋2分で話す練習', 'spk', 'kyo', 20);
+    }
+  }
+  return out;
+}
+function planPreview(k){
+  if (k === 'done') return '試験日を新しく設定してください。';
+  const p = planFor(k), m = p.reduce((a,x)=>a+x.min,0), days = new Set(p.map(x=>x.date)).size || 1;
+  if (!p.length) return '試験の前日まで入れるTODOはありません。';
+  return `${days}日間で ${p.length}件、合計 約${hm(m)}（1日平均 約${Math.round(m/days)}分）。同じ日に同じTODOがあれば追加しません。`;
+}
+function addPlan(){
+  const ph = phase(); if (ph.k === 'done') { toast('先に試験日を設定してください'); return; }
+  let n = 0;
+  planFor(ph.k).forEach(p => { if (!S.todos.some(x => x.date === p.date && x.title === p.title)) { S.todos.push({id:uid(), ...p, done:false}); n++; } });
+  save('todos'); render(); toast(n ? `${n}件のTODOを追加しました` : '追加するTODOはありませんでした');
+}
+
+/* ---------- LOG ---------- */
+let TM = null; try { TM = JSON.parse(localStorage.getItem(LS+'timer')||'null'); } catch(e){}
+let logPrefill = null, logShow = 30;
+VIEW.log = () => {
+  const t = today();
+  const monthStart = t.slice(0,8)+'01';
+  const month = {}; S.logs.filter(l => l.date >= monthStart).forEach(l => month[l.skill] = (month[l.skill]||0) + (+l.min||0));
+  const mMax = Math.max(1, ...Object.values(month));
+  const total = S.logs.reduce((a,l)=>a+(+l.min||0),0);
+  const sorted = S.logs.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const groups = {}; sorted.slice(0, logShow).forEach(l => (groups[l.date] ||= []).push(l));
+  const pf = logPrefill || {};
+  return `
+  <section class="panel">
+    <h2>ストップウォッチ</h2>
+    <div class="form-grid">
+      <select id="tm-skill" ${TM?'disabled':''} aria-label="技能">${skOpts(TM?.skill || 'voc')}</select>
+      <select id="tm-book" ${TM?'disabled':''} aria-label="教材">${bkOpts(TM?.book || 'pass')}</select>
+    </div>
+    <div class="timer" id="tmView">${TM ? clock(Date.now()-TM.start) : '0:00:00'}</div>
+    ${TM ? '<button class="btn pri block" data-act="tmStop">終了して記録</button><button class="btn ghost" data-act="tmCancel">取り消す</button>' : '<button class="btn pri block" data-act="tmStart">勉強を始める</button>'}
+  </section>
+  <details class="fold" id="logFold" ${logPrefill ? 'open' : ''}><summary>${logPrefill ? `${pf.min}分の内容を記録` : '手入力で記録'}</summary><div class="in">
+    <form class="form-grid" data-form="log">
+      <div class="field"><label for="l-date">日付</label><input type="date" id="l-date" name="date" value="${pf.date || t}"></div>
+      <div class="field"><label for="l-min">時間(分)</label><input type="number" id="l-min" name="min" min="1" required value="${pf.min || ''}" inputmode="numeric"></div>
+      <div class="field"><label for="l-skill">技能</label><select id="l-skill" name="skill">${skOpts(pf.skill || 'voc')}</select></div>
+      <div class="field"><label for="l-book">教材</label><select id="l-book" name="book">${bkOpts(pf.book || 'pass')}</select></div>
+      <div class="field wide"><label for="l-text">内容・気づき</label><input type="text" id="l-text" name="text" value="${esc(pf.text||'')}" placeholder="例: 過去問第2回 大問2"></div>
+      <button class="btn pri block wide">記録する</button>
+    </form></div></details>
+  <section class="panel">
+    <div class="panel-h"><h2>直近14日</h2><span class="small muted">累計 ${hm(total)}</span></div>
+    <div class="chart">${barChart(14)}</div>
+    ${legend()}
+  </section>
+  <section class="panel">
+    <h2>今月の技能バランス</h2>
+    ${Object.keys(SK).map(k => `<div class="hbar"><span>${SK[k].n}</span><div class="bar" style="--c:${SK[k].c}"><i style="width:${(month[k]||0)/mMax*100}%"></i></div><span class="num small" style="text-align:right">${hm(month[k]||0)}</span></div>`).join('')}
+    <p class="small muted">ライティングは一次のCSEスコアの3分の1（750点）を2問で占めます。要約と意見文の時間が少なすぎないか確認しましょう。</p>
+  </section>
+  <section class="panel">
+    <div class="panel-h"><h2>学習カレンダー</h2><span class="small muted">連続 ${streak()}日</span></div>
+    ${heatmap()}
+    <div class="legend"><span style="--c:var(--soft)">0</span><span style="--c:color-mix(in srgb,var(--accent) 30%,var(--soft))">〜30分</span><span style="--c:color-mix(in srgb,var(--accent) 55%,var(--soft))">〜60分</span><span style="--c:color-mix(in srgb,var(--accent) 80%,var(--soft))">〜2時間</span><span style="--c:var(--accent)">2時間〜</span></div>
+  </section>
+  <section class="panel">
+    <h2>記録一覧</h2>
+    ${sorted.length ? Object.entries(groups).map(([d, ls]) => `<div><h3 class="num" style="font-size:.85rem;margin-top:4px">${md(d)}(${wd(d)}) <span class="muted">${hm(ls.reduce((a,l)=>a+(+l.min||0),0))}</span></h3>
+      <div class="list">${ls.map(l => `<div class="item" style="grid-template-columns:auto 1fr auto">${skChip(l.skill)}<div class="t small">${esc(l.text||'')} <span class="muted">· ${l.min}分</span>${l.sample?' <span class="chip ex">例</span>':''}</div><button class="btn icon" data-act="delLog" data-id="${l.id}" aria-label="削除">✕</button></div>`).join('')}</div></div>`).join('')
+      + (sorted.length > logShow ? `<button class="btn" data-act="moreLogs">さらに表示</button>` : '')
+      : '<div class="empty">まだ記録がありません。ストップウォッチか手入力で記録しましょう。</div>'}
+  </section>`;
+};
+const clock = ms => { const s = Math.floor(ms/1000); return `${Math.floor(s/3600)}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}`; };
+setInterval(() => { const v = $('#tmView'); if (v && TM) v.textContent = clock(Date.now()-TM.start); }, 1000);
+function heatmap(){
+  const t = today(), weeks = 15;
+  const end = addDays(t, 6 - new Date(t+'T00:00:00').getDay());
+  const start = addDays(end, -weeks*7+1);
+  let h = '';
+  for (let i=0;i<weeks*7;i++){
+    const d = addDays(start, i), m = minutesOn(d);
+    const l = d > t ? '' : m >= 120 ? 'l4' : m >= 60 ? 'l3' : m > 30 ? 'l2' : m > 0 ? 'l1' : '';
+    h += `<i class="${l}" title="${md(d)} ${m}分" ${d>t?'style="opacity:.3"':''}></i>`;
+  }
+  return `<div class="heat" aria-label="直近15週の学習カレンダー">${h}</div>`;
+}
+
+/* ---------- MORE ---------- */
+VIEW.more = () => {
+  const d = pendingImport, lb = lastBackup();
+  const cnt = o => ['words','todos','logs','mocks','essays'].map(k => `${{words:'単語',todos:'TODO',logs:'記録',mocks:'過去問',essays:'英作文'}[k]} ${(o[k]||[]).length}`).join(' · ');
+  return `
+  ${d ? `<section class="panel" style="border-color:var(--accent)">
+    <h2>バックアップを読み込みます</h2>
+    <dl class="kv small"><dt>保存日時</dt><dd class="num">${d.at ? esc(new Date(d.at).toLocaleString('ja-JP')) : '不明'}</dd><dt>中身</dt><dd>${cnt(d)}</dd><dt>この端末</dt><dd>${cnt(S)}</dd></dl>
+    <div class="note"><b>統合</b>: この端末の記録を残したまま、バックアップにしかない記録を足します。同じ単語はクイズ回数の多い方を残します。<br><b>置き換え</b>: この端末の記録を消して、バックアップの内容だけにします。</div>
+    <button class="btn pri block" data-act="applyImport" data-mode="merge">統合する（おすすめ）</button>
+    <button class="btn block" data-act="applyImport" data-mode="replace">この端末の記録を消して置き換える</button>
+    <button class="btn ghost" data-act="cancelImport">やめる</button>
+  </section>` : ''}
+  <div class="menu">
+    <button data-act="tab" data-k="mock">${svg('mock')}<div><b>過去問スコア</b><span>大問別の点数を記録して、弱点を見つける</span></div><span class="muted">›</span></button>
+    <button data-act="tab" data-k="write">${svg('write')}<div><b>英作文の練習</b><span>要約・意見論述を語数カウンターとタイマーで</span></div><span class="muted">›</span></button>
+    <button data-act="tab" data-k="guide">${svg('guide')}<div><b>攻略メモ</b><span>試験の形式・合格基準・3冊の使い分け・面接のコツ</span></div><span class="muted">›</span></button>
+  </div>
+  <section class="panel">
+    <div class="panel-h"><h2>データの保存・引っ越し</h2>${syncHtml()}</div>
+    <p class="small muted">${window.claude ? 'サインインして開いている間は、記録があなた専用の領域に保存され、他の人からは見えません。' : '記録はこのブラウザの中だけに保存されます。別の端末で続けるときや、念のための控えとして、バックアップ（JSONファイル）を保存してください。'}</p>
+    <p class="small">最後のバックアップ: <b class="num">${lb ? `${md(lb)}（${diffDays(lb, today())}日前）` : 'まだありません'}</b></p>
+    <button class="btn pri block" data-act="export">バックアップを保存（JSON）</button>
+    <label class="btn block" for="importFile">バックアップを読み込む</label><input type="file" id="importFile" accept="application/json,.json,text/plain" hidden data-chg="import">
+    <details class="sub"><summary>テキストでコピー / 貼り付け</summary>
+      <div style="display:grid;gap:8px;margin-top:8px">
+        <p class="small muted">ファイルを扱いにくいときは、テキストをコピーしてメモアプリやLINEのKeepなどで送り、別の端末でここに貼り付けて読み込めます。</p>
+        <button class="btn" data-act="copyJson">テキストをコピー</button>
+        <textarea id="pasteJson" rows="4" placeholder="ここにバックアップのテキストを貼り付け" aria-label="バックアップのテキスト"></textarea>
+        <button class="btn" data-act="pasteImport">貼り付けたテキストを読み込む</button>
+      </div></details>
+    <div class="note">別の端末へ移すとき<br>1. この端末で「バックアップを保存」<br>2. ファイルを別の端末へ送る（AirDrop・LINE・Google ドライブなど）<br>3. 別の端末で「バックアップを読み込む」→「統合する」<br>claude.ai版とGitHub版の間でも、同じファイルで移せます。</div>
+  </section>`;
+};
+const backBtn = () => `<button class="btn sm ghost" data-act="tab" data-k="more" style="justify-self:start">‹ その他</button>`;
+
+/* ---------- MOCK ---------- */
+VIEW.mock = () => {
+  const ms = S.mocks.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const sumG = (m, g) => MOCK.filter(x=>x.g===g).reduce((a,x)=>a+(+m.s[x.k]||0),0);
+  const maxG = g => MOCK.filter(x=>x.g===g).reduce((a,x)=>a+x.max,0);
+  const pctChip = (v, mx) => { const p = Math.round(v/mx*100); return `<span class="chip ${p>=75?'good':p>=60?'mid':'bad'} num">${p}%</span>`; };
+  const avg = MOCK.map(x => { const vals = S.mocks.map(m => m.s[x.k]).filter(v => v !== '' && v != null).map(Number); return {...x, p: vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length/x.max*100 : null}; });
+  const valid = avg.filter(a => a.p != null);
+  const weakest = valid.length ? valid.reduce((a,b) => a.p <= b.p ? a : b) : null;
+  return `${backBtn()}
+  <details class="fold" ${ms.length ? '' : 'open'}><summary>過去問の結果を記録</summary><div class="in">
+    <form data-form="mock" style="display:grid;gap:10px">
+      <div class="form-grid">
+        <div class="field"><label for="m-round">何回目に収録の回</label><select id="m-round" name="round">${[1,2,3,4,5,6].map(n=>`<option value="${n}">${n}回目</option>`).join('')}</select></div>
+        <div class="field"><label for="m-lap">周回</label><select id="m-lap" name="lap"><option value="1">1周目</option><option value="2">2周目</option><option value="3">3周目</option></select></div>
+        <div class="field"><label for="m-label">回の名前（任意）</label><input type="text" id="m-label" name="label" placeholder="2025年度 第2回"></div>
+        <div class="field"><label for="m-date">実施日</label><input type="date" id="m-date" name="date" value="${today()}"></div>
+      </div>
+      <div class="sc-grid">
+        ${['R','W','L'].map(g => `<div class="groupt">${{R:'リーディング',W:'ライティング（観点別 4点×4）',L:'リスニング'}[g]}</div>` + MOCK.filter(x=>x.g===g).map(x => `<div class="field"><label for="m-${x.k}">${x.n} /${x.max}</label><input type="number" id="m-${x.k}" name="${x.k}" min="0" max="${x.max}" inputmode="numeric"></div>`).join('')).join('')}
+      </div>
+      <div class="field"><label for="m-memo">反省メモ</label><input type="text" id="m-memo" name="memo" placeholder="例: 大問3で時間切れ"></div>
+      <button class="btn pri block">記録する</button>
+      <p class="small muted">空欄の大問は「未実施」として扱います。</p>
+    </form></div></details>
+  ${weakest ? `<section class="panel">
+    <div class="panel-h"><h2>大問別の平均正答率</h2><span class="small muted">${S.mocks.length}回分</span></div>
+    ${avg.map(a => `<div class="hbar" style="grid-template-columns:8.5em 1fr 3em"><span class="small">${a.n}</span><div class="bar" style="--c:${a===weakest?'var(--accent)':'var(--s-read)'}"><i style="width:${a.p??0}%"></i></div><span class="num small" style="text-align:right">${a.p==null?'—':Math.round(a.p)+'%'}</span></div>`).join('')}
+    <div class="note">いちばん伸びしろがあるのは <b>${weakest.n}</b> です。${weakTip(weakest.k)}</div>
+  </section>` : ''}
+  <section class="panel">
+    <h2>これまでの結果</h2>
+    ${ms.length ? ms.map(m => { const has = g => MOCK.filter(x=>x.g===g).some(x => m.s[x.k] !== '' && m.s[x.k] != null);
+        return `<div class="mcard"><div class="panel-h"><div><b class="num">${md(m.date)}</b>　${m.round}回目・${m.lap}周目${m.label?` <span class="small muted">${esc(m.label)}</span>`:''}</div><button class="btn icon" data-act="delMock" data-id="${m.id}" aria-label="削除">✕</button></div>
+          <div class="mgrid">${['R','W','L'].map(g => `<div><span class="small muted">${{R:'読解',W:'作文',L:'リスニング'}[g]}</span>${has(g) ? `<b>${sumG(m,g)}<span class="muted small">/${maxG(g)}</span></b>${pctChip(sumG(m,g), maxG(g))}` : '<b class="muted">—</b>'}</div>`).join('')}</div>
+          ${m.memo?`<div class="small">${esc(m.memo)}</div>`:''}</div>`; }).join('')
+      : '<div class="empty">過去問を解いたら、大問ごとの点数を記録しましょう。弱い大問が自動でわかります。</div>'}
+    <p class="small muted">合否はCSEスコアで判定されます（一次 1792/2250、二次 512/750）。素点からの換算は公表されていないため、各技能 7〜8割を安定して取ることを目標に。ライティングは模範解答と比べた自己採点の目安です。</p>
+  </section>`;
+};
+function weakTip(k){
+  return {
+    voc:'パス単の「でる度A・B」を優先し、過去問で間違えた選択肢も単語帳に登録してクイズで回しましょう。',
+    cloze:'空所の前後にある逆接・因果の接続表現を手がかりに、段落の流れから先に予想してから選択肢を見ます。',
+    comp:'設問を先に読み、本文の言い換え表現を探す練習を。時間切れなら大問1を15分以内に終える配分を決めましょう。',
+    sum:'段落ごとの要点を1文ずつ、本文の語句を言い換えて60〜70語に。「英作文」の練習とチェックリストを使いましょう。',
+    ess:'「立場 → 理由2つ（具体例つき）→ 結論」の型を固定し、自信のある表現だけで書くのが安定への近道です。',
+    l1:'最後の発言や「but」の後に答えがあることが多いです。スクリプトで聞き取れなかった箇所を確認し、音読しましょう。',
+    l2:'選択肢の言い換えに注意。放送前に選択肢を先読みし、キーワードを予測してから聞きます。',
+    l3:'SituationとQuestionを10秒で読み、条件（時間・予算など）に印をつけてから聞く練習をします。'
+  }[k];
+}
+
+/* ---------- WRITE ---------- */
+let wr = {kind:'sum', text:'', topic:'', start:null};
+try { const d = JSON.parse(localStorage.getItem(LS+'draft')||'null'); if (d) wr = {...wr, ...d}; } catch(e){}
+const WK = {
+  sum:{n:'要約', lo:60, hi:70, min:15, checks:['各段落の要点を1文ずつ押さえた','本文の語句をそのまま写さず言い換えた','自分の意見・本文にない情報を入れていない','however / as a result などで要点をつないだ','語数が60〜70語に収まっている']},
+  ess:{n:'意見論述', lo:120, hi:150, min:25, checks:['最初の文で立場をはっきり書いた','POINTSから2つ選び、理由を2段落にした','各理由に具体例や説明を加えた','結論で立場を別の言葉で言い換えた','自信のある文法・語彙だけを使った','語数が120〜150語に収まっている']}
+};
+VIEW.write = () => {
+  const k = WK[wr.kind], n = wcount(wr.text);
+  const scale = Math.max(k.hi*1.4, n+5);
+  return `${backBtn()}
+  <section class="panel">
+    ${fchips('wkind', wr.kind, Object.entries(WK).map(([kk,v]) => [kk, `${v.n} ${v.lo}〜${v.hi}語`]))}
+    <div class="field"><label for="keep-topic">${wr.kind==='sum'?'要約する文章（出典）':'トピック'}</label><input type="text" id="keep-topic" value="${esc(wr.topic)}" data-inp="topic" placeholder="${wr.kind==='sum'?'例: 過去問 第1回 要約':'例: Should companies allow remote work?'}"></div>
+    <textarea id="keep-essay" class="essay-text" rows="9" data-inp="essay" autocapitalize="sentences" placeholder="ここに英文を書きます。語数がリアルタイムで表示されます。" aria-label="英文">${esc(wr.text)}</textarea>
+    <div class="wc"><b id="wcN">${n}</b><span class="small muted">語</span>
+      <div class="range" aria-hidden="true"><div class="zone" style="left:${k.lo/scale*100}%;width:${(k.hi-k.lo)/scale*100}%"></div><div class="pin" id="wcPin" style="left:${Math.min(100,n/scale*100)}%"></div></div>
+      <span class="small" id="wcMsg">${wcMsg(n,k)}</span></div>
+    <div class="row" style="justify-content:space-between"><span class="timer" id="wrClock" style="font-size:1.5rem">${wr.start ? clock(Date.now()-wr.start) : '0:00:00'}</span>
+      ${wr.start ? '' : '<button class="btn" data-act="wrStart">タイマー開始</button>'}</div>
+    <p class="small muted">本番の目安: ${k.n} ${k.min}分</p>
+  </section>
+  <section class="panel">
+    <h2>見直しチェック</h2>
+    <div class="checks">${k.checks.map((c,i)=>`<label><input type="checkbox" class="check" id="wc-${i}"> <span>${c}</span></label>`).join('')}</div>
+    <h3>自己採点（観点別 0〜4点）</h3>
+    <div class="selfsc">${['内容','構成','語彙','文法'].map((l,i)=>`<div class="field"><label for="ws-${i}">${l}</label><select id="ws-${i}">${[4,3,2,1,0].map(v=>`<option value="${v}">${v}</option>`).join('')}</select></div>`).join('')}</div>
+    <button class="btn pri block" data-act="saveEssay" ${n?'':'disabled'}>保存して学習記録に追加</button>
+  </section>
+  <section class="panel">
+    <h2>型（テンプレート）</h2>
+    <details class="tplbox" ${wr.kind==='ess'?'open':''}><summary>意見論述 120〜150語</summary><div class="tpl">I [agree / disagree] that ~ for two reasons.
+
+First, [理由1 / POINT]. For example, ~. This means that ~.
+
+Second, [理由2 / POINT]. ~. As a result, ~.
+
+In conclusion, for the reasons of [理由1] and [理由2], I believe that ~.</div></details>
+    <details class="tplbox" ${wr.kind==='sum'?'open':''}><summary>要約 60〜70語</summary><div class="tpl">[段落1の話題を一般化して1文] ~ has become ~.
+[段落2の利点・主張] Supporters say that ~ because ~.
+[段落3の問題・反論] However, ~ , so ~.
+（第1段落=導入、第2段落=賛成側、第3段落=反対側/結果、の構成が多い）</div></details>
+  </section>
+  <section class="panel">
+    <h2>書いた英文</h2>
+    ${S.essays.length ? `<div class="list">${S.essays.slice().reverse().map(e => `<details class="essay-item"><summary><span class="num small">${md(e.date)}</span> ${esc(WK[e.kind].n)} · ${esc(e.topic||'（無題）')} <span class="muted small num">${e.words}語 · ${e.score}/16</span></summary><div class="essay-text" style="white-space:pre-wrap">${esc(e.text)}</div><button class="btn sm ghost" data-act="delEssay" data-id="${e.id}">削除</button></details>`).join('')}</div>` : '<div class="empty">保存した英文はここに残ります。同じトピックを数日後に書き直すと、伸びがわかります。</div>'}
+  </section>`;
+};
+function wcMsg(n,k){ return n < k.lo ? `あと ${k.lo-n} 語` : n > k.hi ? `${n-k.hi} 語オーバー` : '<span style="color:var(--ok);font-weight:700">範囲内</span>'; }
+setInterval(() => { const v = $('#wrClock'); if (v && wr.start) v.textContent = clock(Date.now()-wr.start); }, 1000);
+
+/* ---------- GUIDE ---------- */
+VIEW.guide = () => { const s = S.settings; return `${backBtn()}
+  <section class="panel guide">
+    <h2>あなたの日程</h2>
+    <dl class="kv">
+      <dt>一次</dt><dd class="num">${md(s.exam)}(${wd(s.exam)})</dd>
+      <dt>二次</dt><dd class="num">A ${md(s.exam2a)}(${wd(s.exam2a)}) / B ${md(s.exam2b)}(${wd(s.exam2b)})</dd>
+    </dl>
+    <p class="small">一次から二次のA日程まで約5週間。結果を待たずに、自己採点で手応えがあれば面接対策を始めるのがおすすめです。アプリも一次の翌日から「二次対策期」に切り替わります。</p>
+  </section>
+  <section class="panel guide">
+    <h2>試験の形（2024年度リニューアル後）</h2>
+    <div class="fmt">
+      <div><div class="row" style="gap:5px">${skChip('voc')}${skChip('read')}<span class="small muted">筆記90分（作文込み）</span></div>大問1 語彙・熟語 <b class="num">18</b>問 / 大問2 空所補充 <b class="num">6</b>問 / 大問3 内容一致 <b class="num">7</b>問</div>
+      <div><div class="row" style="gap:5px">${skChip('sum')}${skChip('ess')}</div>英文要約（60〜70語）と 意見論述（120〜150語）各1問</div>
+      <div><div class="row" style="gap:5px">${skChip('lis')}<span class="small muted">約30分</span></div>Part1 会話 <b class="num">12</b> / Part2 文章 <b class="num">6</b> / Part3 Real-Life <b class="num">5</b></div>
+      <div><div class="row" style="gap:5px">${skChip('spk')}<span class="small muted">約8分</span></div>自己紹介 → 4コマのナレーション（準備1分・話す2分）→ 質疑応答4問</div>
+    </div>
+    <dl class="kv">
+      <dt>一次の合格基準</dt><dd><span class="num">1792</span> / 2250</dd>
+      <dt>二次の合格基準</dt><dd><span class="num">512</span> / 750</dd>
+    </dl>
+    <p class="note">CSEスコアは技能ごとに同じ750点です。ライティングは2問で750点分なので、1問あたりの重みがいちばん大きい。問題数・基準は変更されることがあるので、受験前に英検公式サイトで確認してください。</p>
+  </section>
+  <section class="panel guide">
+    <h2>3冊の使い分け</h2>
+    <ol>
+      <li><b>でる順パス単</b>: 毎日。1周目はでる度Aから。わからない語だけをこのアプリの単語帳に登録して回します。覚えている語に時間を使わないのがコツ。</li>
+      <li><b>総合対策教本</b>: 最初の1か月で各大問の解き方と、要約・意見論述・面接の型を学ぶ。二次対策期には面接の章をもう一度。</li>
+      <li><b>過去6回全問題集</b>: 演習期に週1回、時間を計って通しで解く。解く時間より復習の時間を長く（語彙登録・スクリプト音読・要約の書き直し）。直前期に2周目。</li>
+    </ol>
+  </section>
+  <section class="panel guide">
+    <h2>技能別のポイント</h2>
+    <ul>
+      <li><b>語彙</b>: 大問1は語彙力がそのまま点に。過去問で問われた語は繰り返し出やすいので、間違えた選択肢の語も登録。</li>
+      <li><b>長文</b>: 設問を先に読み、本文の言い換えを探す。返り読みせず前から意味をとる。</li>
+      <li><b>リスニング</b>: 聞き取れなかった箇所をスクリプトで特定し、ディクテーションや音読で「聞ける音」に。</li>
+      <li><b>ライティング</b>: 減点を避けるため、確実に正しいと言える表現だけで書く。型を固定して時間内に書き切る。</li>
+      <li><b>面接</b>: 4コマは1コマ約30秒・2文前後。カードに書かれた最初の文から始め、人物の行動・表情・小さな変化にも触れる。意見を問う質問は「意見＋理由」をセットで答える。</li>
+    </ul>
+  </section>
+  <section class="panel guide">
+    <h2>参考にした記事</h2>
+    <ul class="small">
+      <li><a href="https://toraiz.jp/english-times/success/5934" target="_blank" rel="noopener">英検準1級の勉強法・合格基準（トライズ）</a></li>
+      <li><a href="https://www.wasedajuku.com/sns/wasedane/detail/13614" target="_blank" rel="noopener">英検準1級の対策と単語学習（早稲田塾）</a></li>
+      <li><a href="https://www.agaroot.jp/coaching/column/eiken-pre-1st-grade/" target="_blank" rel="noopener">英検準1級の勉強法（アガルート）</a></li>
+      <li><a href="https://englishhub.jp/eiken/exam/grade-pre1" target="_blank" rel="noopener">英検準1級 試験内容（English Hub）</a></li>
+      <li><a href="https://www.haradaeigo.com/?p=17609" target="_blank" rel="noopener">英検準1級 面接対策（原田英語）</a></li>
+      <li><a href="https://hiroacademia.jpn.com/blog/kentei/eigokentei/grade-pre1/eiken-pre1-speaking/" target="_blank" rel="noopener">二次試験の4コマ対策（HIRO ACADEMIA）</a></li>
+      <li><a href="https://3d-universal.com/blogs/2025/10/eiken-pre-grade1-schedule.html" target="_blank" rel="noopener">4か月の学習スケジュール例</a></li>
+      <li><a href="https://www.eiken.or.jp/eiken/exam/grade_p1/" target="_blank" rel="noopener">英検公式サイト 準1級</a></li>
+    </ul>
+  </section>`; };
+
+/* ---------- events ---------- */
+const ACT = {
+  tab: el => { tab = el.dataset.k; render(); window.scrollTo(0,0); },
+  clearSamples: () => { ['words','todos','logs'].forEach(k => { S[k] = S[k].filter(x => !x.sample); save(k); }); render(); toast('例を削除しました'); },
+  plan: addPlan,
+  kyo: el => { const s = S.settings; s.kyoDone = Math.max(0, Math.min(s.kyoTotal, s.kyoDone + +el.dataset.d)); save('settings'); render(); },
+  quickQuiz: () => { qs.pool = 'due'; qs.sec = ''; startQuiz(poolWords()); },
+  toggleTodo: el => { const x = S.todos.find(t => t.id === el.dataset.id); if (!x) return;
+    if (x.done) { x.done = false; delete x.doneAt; save('todos'); render(); } else { completing = x.id; render(); } },
+  finishTodo: el => { const x = S.todos.find(t => t.id === el.dataset.id); if (!x) return;
+    x.done = true; x.doneAt = today();
+    if (el.dataset.log) { const m = +($('#keep-cmin')?.value) || x.min; if (m > 0) { S.logs.push({id:uid(), date:today(), skill:x.skill, book:x.book, min:m, text:x.title, todo:x.id}); save('logs'); } }
+    completing = null; save('todos'); render(); toast(el.dataset.log ? '完了して記録しました' : '完了にしました'); },
+  cancelFinish: () => { completing = null; render(); },
+  delTodo: el => { S.todos = S.todos.filter(t => t.id !== el.dataset.id); save('todos'); render(); },
+  tf: el => { tf = el.dataset.k; render(); },
+  wst: el => { wf.st = el.dataset.k; wShow = 60; render(); },
+  moreWords: () => { wShow += 60; render(); },
+  editWord: el => { editing = el.dataset.id; render(); window.scrollTo(0,0); },
+  cancelEdit: () => { editing = null; render(); },
+  delWord: el => { S.words = S.words.filter(w => w.id !== el.dataset.id); if (editing === el.dataset.id) editing = null; save('words'); render(); },
+  speak: el => speak(el.dataset.t),
+  bulk: () => {
+    const sec = $('#w-sec').value, src = $('#w-src').value, t = today();
+    const lines = $('#bulk').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    let n = 0, dup = 0;
+    lines.forEach(l => { const m = l.split(/\t|,|，|、|：|:/); const en = (m.shift()||'').trim(), ja = m.join('、').trim();
+      if (!en || !ja) return; if (S.words.some(w => w.en.toLowerCase() === en.toLowerCase())) { dup++; return; }
+      S.words.push({id:uid(), en, ja, sec, src, page:'', ex:'', note:'', box:0, due:t, ok:0, ng:0, created:t}); n++; });
+    lastSec = sec; lastSrc = src;
+    save('words'); render(); toast(`${n}語を追加しました${dup ? `（${dup}語は登録済み）` : ''}`);
+  },
+  qpool: el => { qs.pool = el.dataset.k; render(); },
+  qmode: el => { qs.mode = el.dataset.k; render(); },
+  startQuiz: () => startQuiz(poolWords()),
+  pick: el => { const w = curW(), key = Q.mode === 'mc-ej' ? 'ja' : 'en'; Q.ans = +el.dataset.i; grade(Q.opts[Q.ans] === w[key]); render(); },
+  reveal: () => { if (!Q.revealed) { Q.revealed = true; render(); } },
+  self: el => { Q.ans = 1; grade(el.dataset.ok === '1'); nextQ(); },
+  next: () => nextQ(),
+  quitQuiz: () => { Q = null; render(); },
+  retryWrong: () => { const ws = Q.res.filter(r=>!r.ok).map(r => S.words.find(w=>w.id===r.id)).filter(Boolean); const m = qs.n; qs.n = 999; startQuiz(ws); qs.n = m; },
+  logQuiz: () => { const min = Math.max(1, Math.round((Q.end - Q.start)/60000)); S.logs.push({id:uid(), date:today(), skill:'voc', book:'app', min, text:`単語クイズ ${Q.res.filter(r=>r.ok).length}/${Q.res.length}`}); Q.logged = true; save('logs'); render(); toast('学習記録に追加しました'); },
+  tmStart: () => { TM = {start:Date.now(), skill:$('#tm-skill').value, book:$('#tm-book').value}; try{localStorage.setItem(LS+'timer', JSON.stringify(TM));}catch(e){} render(); },
+  tmStop: () => { const min = Math.max(1, Math.round((Date.now()-TM.start)/60000)); logPrefill = {min, skill:TM.skill, book:TM.book, date:today()}; TM = null; try{localStorage.removeItem(LS+'timer');}catch(e){} render(); $('#logFold')?.scrollIntoView({block:'start'}); toast(`${min}分 計測しました。内容を書いて記録してください`); },
+  tmCancel: () => { TM = null; try{localStorage.removeItem(LS+'timer');}catch(e){} render(); },
+  delLog: el => { S.logs = S.logs.filter(l => l.id !== el.dataset.id); save('logs'); render(); },
+  moreLogs: () => { logShow += 30; render(); },
+  delMock: el => { S.mocks = S.mocks.filter(m => m.id !== el.dataset.id); save('mocks'); render(); },
+  wkind: el => { wr.kind = el.dataset.k; saveDraft(); render(); },
+  wrStart: () => { wr.start = Date.now(); saveDraft(); render(); },
+  saveEssay: () => {
+    const n = wcount(wr.text); if (!n) return;
+    const score = [0,1,2,3].reduce((a,i)=>a + +$('#ws-'+i).value, 0);
+    const min = wr.start ? Math.max(1, Math.round((Date.now()-wr.start)/60000)) : WK[wr.kind].min;
+    S.essays.push({id:uid(), date:today(), kind:wr.kind, topic:wr.topic, text:wr.text, words:n, score, min});
+    S.logs.push({id:uid(), date:today(), skill:wr.kind, book:'app', min, text:`${WK[wr.kind].n}: ${wr.topic||'（無題）'} ${n}語 自己採点${score}/16`});
+    save('essays'); save('logs'); wr = {kind:wr.kind, text:'', topic:'', start:null}; saveDraft(); render(); toast('保存しました');
+  },
+  delEssay: el => { S.essays = S.essays.filter(e => e.id !== el.dataset.id); save('essays'); render(); },
+  export: async () => {
+    const data = backupJson(), name = `eiken-pre1-backup-${today()}.json`;
+    // claude.ai: 専用の保存ダイアログ / GitHub Pages など: スマホは共有シート、PCは通常のダウンロード
+    const dl = window.claude?.use ? await window.claude.use('downloads') : null;
+    if (dl) { try { const r = await dl.save({filename:name, data}); if (r?.status === 'saved') { markBackup(); toast('バックアップを保存しました'); } } catch(e){ if (e?.code !== 'cancelled' && e?.code !== 'declined') toast('保存できませんでした。「テキストをコピー」を使ってください'); } return; }
+    const file = new File([data], name, {type:'application/json'});
+    if (navigator.canShare?.({files:[file]})) {
+      try { await navigator.share({files:[file], title:'合格デスク バックアップ'}); markBackup(); toast('バックアップを渡しました'); return; }
+      catch(e){ if (e?.name === 'AbortError') return; }
+    }
+    try {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      markBackup(); toast('バックアップを保存しました');
+    } catch(e){ toast('保存できませんでした。「テキストをコピー」を使ってください'); }
+  },
+  copyJson: async () => {
+    const data = backupJson();
+    try { await navigator.clipboard.writeText(data); markBackup(); toast('バックアップのテキストをコピーしました'); }
+    catch(e){ const t = $('#pasteJson'); if (t) { t.closest('details').open = true; t.value = data; t.select(); } toast('コピーできなかったので、欄に表示しました。長押しでコピーしてください'); }
+  },
+  pasteImport: () => readBackup($('#pasteJson').value),
+  applyImport: el => applyImport(el.dataset.mode),
+  cancelImport: () => { pendingImport = null; render(); }
+};
+const backupJson = () => JSON.stringify({app:'eiken-pre1-desk', v:2, at:new Date().toISOString(), ...S});
+function markBackup(){ try { localStorage.setItem(LS+'lastBackup', today()); } catch(e){} }
+function lastBackup(){ try { return localStorage.getItem(LS+'lastBackup'); } catch(e){ return null; } }
+let pendingImport = null;
+function readBackup(text){
+  try { const d = JSON.parse(String(text||'').trim()); if (d?.app !== 'eiken-pre1-desk') throw 0; pendingImport = d; tab = 'more'; render(); window.scrollTo(0,0); }
+  catch(e){ toast('合格デスクのバックアップとして読み込めませんでした'); }
+}
+// 統合: 両方の記録を残す。同じ単語（つづりが同じ）はクイズ回数の多い方、同じTODOは完了している方を残す
+function mergeArr(k, cur, inc){
+  const key = x => k === 'words' ? 'w:' + String(x.en||'').trim().toLowerCase() : x.id;
+  const tries = x => (+x.ok||0) + (+x.ng||0);
+  const m = new Map(cur.map(x => [key(x), x])); let add = 0;
+  inc.forEach(x => {
+    if (!x || !x.id) return;
+    const kk = key(x), c = m.get(kk);
+    if (!c) { m.set(kk, x); add++; return; }
+    const newer = k === 'words' ? tries(x) > tries(c) || (tries(x) === tries(c) && (x.last||'') > (c.last||''))
+      : k === 'todos' ? x.done && !c.done : false;
+    if (newer) m.set(kk, x);
+  });
+  return {arr:[...m.values()], add};
+}
+function applyImport(mode){
+  const d = pendingImport; if (!d) return;
+  let msg;
+  if (mode === 'replace') {
+    KEYS.forEach(k => { if (d[k]) { S[k] = k === 'settings' ? fixSettings(d[k]) : d[k]; save(k); } });
+    msg = 'バックアップの内容に置き換えました';
+  } else {
+    let add = 0;
+    ['words','todos','logs','mocks','essays'].forEach(k => { if (!Array.isArray(d[k])) return; const r = mergeArr(k, S[k], d[k]); S[k] = r.arr; add += r.add; save(k); });
+    if (d.settings) { S.settings = fixSettings({...S.settings, ...d.settings, kyoDone: Math.max(+S.settings.kyoDone||0, +d.settings.kyoDone||0)}); save('settings'); }
+    msg = `統合しました（${add}件を追加）`;
+  }
+  pendingImport = null; render(); toast(msg);
+}
+function nextQ(){ Q.i++; if (Q.i >= Q.items.length) { Q.finished = true; Q.end = Date.now(); } else prepQ(); render(); }
+function saveDraft(){ try { localStorage.setItem(LS+'draft', JSON.stringify(wr)); } catch(e){} }
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (el.tagName === 'INPUT' && el.type === 'checkbox') e.preventDefault();
+  ACT[el.dataset.act]?.(el);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.closest?.('.sheet-zone')) { ACT.reveal(); return; }
+  if (tab !== 'quiz' || !Q || Q.finished) return;
+  if (e.target.matches('input,textarea,select')) return;
+  if (Q.mode.startsWith('mc') && Q.ans == null && /^[1-4]$/.test(e.key)) { const b = document.querySelector(`.opt[data-i="${+e.key-1}"]`); if (b) { e.preventDefault(); ACT.pick(b); } }
+  else if (Q.mode === 'card' && !Q.revealed && e.key === ' ') { e.preventDefault(); ACT.reveal(); }
+});
+document.addEventListener('input', e => {
+  const k = e.target.dataset.inp; if (!k) return;
+  if (k === 'wq') { wf.q = e.target.value; wShow = 60; render(); }
+  if (k === 'topic') { wr.topic = e.target.value; saveDraft(); }
+  if (k === 'essay') { wr.text = e.target.value; saveDraft();
+    const n = wcount(wr.text), kk = WK[wr.kind], scale = Math.max(kk.hi*1.4, n+5);
+    $('#wcN').textContent = n; $('#wcMsg').innerHTML = wcMsg(n,kk); $('#wcPin').style.left = Math.min(100, n/scale*100)+'%';
+    document.querySelector('.range .zone').style.cssText = `left:${kk.lo/scale*100}%;width:${(kk.hi-kk.lo)/scale*100}%`;
+    const b = document.querySelector('[data-act="saveEssay"]'); if (b) b.disabled = !n; }
+});
+document.addEventListener('change', async e => {
+  const k = e.target.dataset.chg; if (!k) return;
+  if (k === 'wsec') { wf.sec = e.target.value; render(); }
+  if (k === 'qsec') { qs.sec = e.target.value; render(); }
+  if (k === 'qn') { qs.n = +e.target.value; render(); }
+  if (k === 'kyoTotal') { S.settings.kyoTotal = Math.max(1, +e.target.value || 1); S.settings.kyoDone = Math.min(S.settings.kyoDone, S.settings.kyoTotal); save('settings'); render(); }
+  if (k === 'import') {
+    const f = e.target.files?.[0]; if (!f) return;
+    readBackup(await f.text()); e.target.value = '';
+  }
+});
+document.addEventListener('submit', e => {
+  const f = e.target, k = f.dataset.form; if (!k) return;
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(f).entries());
+  if (k === 'settings') { Object.assign(S.settings, {exam:v.exam, exam2a:v.exam2a, exam2b:v.exam2b, exam2pick:v.exam2pick, daily:Math.max(5, +v.daily || 30)}); S.settings = fixSettings(S.settings); save('settings'); render(); toast('保存しました'); }
+  if (k === 'word') {
+    const en = v.en.trim(), ja = v.ja.trim(); if (!en || !ja) return;
+    lastSec = v.sec; lastSrc = v.src;
+    if (editing) { const w = S.words.find(x => x.id === editing); Object.assign(w, {en, ja, sec:v.sec, src:v.src, page:v.page, ex:v.ex, note:v.note}); delete w.sample; editing = null; toast('更新しました'); }
+    else {
+      const ex = S.words.find(w => w.en.toLowerCase() === en.toLowerCase());
+      if (ex) { ex.box = 0; ex.due = today(); toast('登録済みの単語です。復習待ちに戻しました'); }
+      else { S.words.push({id:uid(), en, ja, sec:v.sec, src:v.src, page:v.page, ex:v.ex, note:v.note, box:0, due:today(), ok:0, ng:0, created:today()}); toast(`「${en}」を追加しました`); }
+    }
+    save('words'); render(); $('#w-en').focus();
+  }
+  if (k === 'spell') {
+    if (Q.ans != null) return;
+    const w = curW(), a = (v.a||'').trim().toLowerCase().replace(/\s+/g,' ');
+    Q.ans = 1; grade(a === w.en.toLowerCase()); render();
+  }
+  if (k === 'todo') { S.todos.push({id:uid(), title:v.title.trim(), skill:v.skill, book:v.book, date:v.date || today(), min:+v.min || 30, done:false}); save('todos'); tf = (v.date || today()) > today() ? 'week' : 'today'; render(); toast('TODOを追加しました'); }
+  if (k === 'log') { S.logs.push({id:uid(), date:v.date || today(), skill:v.skill, book:v.book, min:+v.min, text:v.text.trim()}); logPrefill = null; save('logs'); render(); toast('記録しました'); }
+  if (k === 'mock') {
+    const s = {}; let any = false; MOCK.forEach(x => { const val = v[x.k]; s[x.k] = val === '' ? '' : Math.max(0, Math.min(x.max, +val)); if (val !== '') any = true; });
+    if (!any) { toast('少なくとも1つの大問の点数を入れてください'); return; }
+    S.mocks.push({id:uid(), date:v.date || today(), round:+v.round, lap:+v.lap, label:v.label.trim(), s, memo:v.memo.trim()});
+    save('mocks'); render(); toast('過去問の結果を記録しました');
+  }
+});
+
+// claude.ai の外（GitHub Pages など）で開いたときだけ、7日以上バックアップしていなければ知らせる
+function backupDue(){
+  if (window.claude) return false;
+  const real = ['words','todos','logs','mocks','essays'].some(k => S[k].some(x => !x.sample));
+  const lb = lastBackup();
+  return real && (!lb || diffDays(lb, today()) >= 7);
+}
+
+/* ---------- boot ---------- */
+if (!window.claude) { try { navigator.storage?.persist?.().catch(() => {}); } catch(e){} }
+if (!loadLocal()) seedExamples();
+render();
+initRemote();
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
